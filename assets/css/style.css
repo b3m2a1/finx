@@ -1,0 +1,114 @@
+/*
+    PRIMARY BODY FORMATTING
+*/
+.main-content {
+    min-height: 100vh;
+    padding: 25px;
+}
+
+.page-body {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+}
+
+/*
+    SITEMAP STYLES
+*/
+.sitemap {
+    padding: 5px;
+}
+
+.sitemap-link-list {
+    padding-left: 10px;
+    width: 100%;
+}
+
+.sitemap-link {
+    list-style-type: none;
+}
+
+.sitemap-link a {
+    color: whitesmoke;
+}
+.sitemap-link a:hover {
+    color: rebeccapurple;
+}
+
+/*
+    SIDEBAR
+*/
+#sidebar {
+    display: none;
+    width: 250px;
+    max-width: 250px;
+    min-width: 250px;
+    min-height: 100vh;
+    overflow: hidden;
+}
+#sidebar.toggled {
+    border-right: solid 1px rgba(0, 0, 0, .8);
+    display: block;
+}
+
+@media (max-width: 768px) {
+    #sidebar {
+        display: none;
+    }
+
+    #sidebar.toggled {
+        display: block;
+    }
+}
+
+/*
+    HEADER & FOOTER
+ */
+
+.main-header {
+    border-bottom: solid 5px rebeccapurple;
+}
+
+.footer {
+    border-top: solid 2px rgba(255, 255, 255, .8);
+    padding: 50px;
+}
+
+.header-link {
+    margin-left: 10px;
+    color: white;
+}
+.header-link:hover {
+    color: white;
+}
+
+.search-group #tipue_search_input {
+    margin-left: 10px;
+    float: none;
+}
+.search-group {
+    padding-top: 5px;
+    width: 100%;
+}
+
+
+/*
+    CODE
+ */
+
+/*code {*/
+/*    padding: 0.2em 0.15em;*/
+/*    font-weight: 400;*/
+/*    color: rebeccapurple;*/
+/*    background-color: whitesmoke;*/
+/*    border: solid rgba(200, 200, 200, .5);*/
+/*    border-radius: 2px;*/
+/*}*/
+
+pre {
+    padding: 10px;
+    font-weight: 400;
+    background-color: whitesmoke;
+    border: solid 1px rgba(200, 200, 200, .1);
+    border-radius: 2px;
+}

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+
+<html lang="{{ site.lang | default: " en-US" }}">
+
+{% include head.html %}
+
+<body onload="finxJS.init()">
+    {% include header.html %}
+    {% assign page_theme = site.page_theme %}
+    {% if page_theme == nil %}
+        {% assign page_theme = "page-body" %}
+    {% endif %}
+    <div class="{{page_theme}}">
+        {% include sidebar.html %}
+        {% assign content_fluid = site.content_fluid %}
+        {% if content_fluid %}
+            {% assign content_container = "container-fluid" %}
+        {%else%}
+            {% assign content_container = "container" %}
+        {% endif %}
+        {% assign content_theme = site.content_theme %}
+        {% if content_theme == nil %}
+            {% assign content_theme = "main-content " | append: content_container %}
+        {% endif %}
+        <div class="{{content_theme}}">
+            {% include page_header.html %}
+            <div id="main-content" class="page-content">
+                {{ content }}
+            </div>
+        </div>
+    </div>
+    {% include footer.html %}
+
+  {% include scripts.html %}
+</body>
+
+</html>

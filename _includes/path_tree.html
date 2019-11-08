@@ -1,0 +1,162 @@
+{% comment %} ##### Initialize passed parameters ####### {% endcomment %}
+
+{% comment %} setup: current_depth {% endcomment %}
+{% if current_depth == nil %}
+    {% assign current_depth = include.current_depth %}
+    {% unless current_depth %}
+        {% assign current_depth = 1 %}
+    {% endunless %}
+{% endif %}
+
+{% comment %} setup: max_depth {% endcomment %}
+{% if max_depth == nil %}
+    {% assign max_depth = include.max_depth %}
+    {% unless max_depth %}
+        {% assign max_depth = 10 %}
+    {% endunless %}
+{% endif %}
+
+{% comment %} setup: list_class {% endcomment %}
+{% if list_class == nil %}
+    {% assign list_class = include.list_class %}
+    {% if list_class == nil %}
+        {% assign list_class = "sitemap-link-list" %}
+    {% endif %}
+{% endif %}
+
+{% comment %} setup: link_class {% endcomment %}
+{% if link_class == nil %}
+    {% assign link_class = include.list_class %}
+    {% if link_class == nil %}
+        {% assign link_class = "sitemap-link" %}
+    {% endif %}
+{% endif %}
+
+{% comment %} I'm actually getting rid of this to be able to use include_cached | setup: active_class {% endcomment %}
+{% if active_class == nil %}
+    {% assign active_class = include.active_class %}
+    {% if active_class == nil %}
+        {% assign active_class = "active" %}
+    {% endif %}
+{% endif %}
+
+{% comment %} setup: subpages {% endcomment %}
+{% assign extra_depth = 0 %}
+{% if parent == nil %}
+    {% assign parent = include.parent %}
+{% endif %}
+{% if parent == nil %}
+    {% assign page_set = site.html_pages %}
+    {% include populate_subpages.html %}
+    {% comment %} handle two-levels of depth skipping ? {% endcomment %}
+    {% assign num_sub = subpages | size %}
+    {% assign num_deep = deeper_pages | size %}
+    {% if num_sub == 0 and num_deep > 0 %}
+        {% assign current_depth = current_depth | plus: 1 %}
+        {% assign extra_depth = extra_depth | plus: 1 %}
+        {% include populate_subpages.html %}
+        {% assign num_sub = subpages | size %}
+        {% assign num_deep = deeper_pages | size %}
+        {% if num_sub == 0 and num_deep > 0 %}
+            {% assign extra_depth = extra_depth | plus: 1 %}
+            {% include populate_subpages.html %}
+        {% endif %}
+    {% endif %}
+{% elsif parent_pages %}
+    {% assign page_set = parent_pages %}
+    {% assign parent_dir = parent.url | split,"." | first %}
+    {% include populate_subpages.html %}
+    {% comment %} handle two-levels of depth skipping ? {% endcomment %}
+    {% assign num_sub = subpages | size %}
+    {% assign num_deep = deeper_pages | size %}
+    {% if num_sub == 0 and num_deep > 0 %}
+        {% assign current_depth = current_depth | plus: 1 %}
+        {% assign extra_depth = extra_depth | plus: 1 %}
+        {% include populate_subpages.html %}
+        {% assign num_sub = subpages | size %}
+        {% assign num_deep = deeper_pages | size %}
+        {% if num_sub == 0 and num_deep > 0 %}
+            {% assign current_depth = current_depth | plus: 1 %}
+         {% assign extra_depth = extra_depth | plus: 1 %}
+            {% include populate_subpages.html %}
+        {% endif %}
+    {% endif %}
+{% elsif parent %}
+    {% assign page_set = site.html_pages %}
+    {% assign parent_dir = parent | split:"." | first %}
+    {% include populate_subpages.html %}
+    {% comment %} handle two-levels of depth skipping ? {% endcomment %}
+    {% assign num_sub = subpages | size %}
+    {% assign num_deep = deeper_pages | size %}
+    {% if num_sub == 0 and num_deep > 0 %}
+        {% assign current_depth = current_depth | plus: 1 %}
+        {% assign extra_depth = extra_depth | plus: 1 %}
+        {% include populate_subpages.html %}
+        {% assign num_sub = subpages | size %}
+        {% assign num_deep = deeper_pages | size %}
+        {% if num_sub == 0 and num_deep > 0 %}
+            {% assign current_depth = current_depth | plus: 1 %}
+            {% assign extra_depth = extra_depth | plus: 1 %}
+            {% include populate_subpages.html %}
+        {% endif %}
+    {% endif %}
+{% else %}
+    {% assign subpages = nil %}
+{% endif %}
+
+{% comment %}
+<p> {{current_depth}} {{parent_pages | size }} {{subpages | size}} {{deeper_pages | size}} </p>
+{% endcomment %}
+
+{% if _stack == nil %}
+    {% assign _stack = "" | split:"" %}
+{% endif %}
+
+{% comment %} ##### Construct sitemap at this level ####### {% endcomment %}
+{% unless subpages == nil %}
+    <ul class="{{list_class}}">
+        {% for child in subpages %}
+            {% assign filename = child.url | split: '/' | last %}
+            {% assign name = filename | split: "." | first | url_decode %}
+            {% assign sidebar_excludes = 'index.html search.html 404.html about.html' %}
+            {% unless sidebar_excludes contains filename %}
+                <li class="{{link_class}}">
+                    <a href='{{ child.url }}'>{{name}}</a>
+                    {% if max_depth >= current_depth | plus: 1 %}
+                        {% assign current_depth = current_depth | plus: 1 %}
+                        {% comment %} We'll maintain a stack for recursion {% endcomment %}
+                        {% assign _substack = "" | split:"" %}
+                        {% assign _substack = _substack | push:parent %}
+                        {% assign _substack = _substack | push:parent_pages %}
+                        {% assign _substack = _substack | push:deeper_pages %}
+                        {% assign _substack = _substack | push:current_depth %}
+                        {% assign _substack = _substack | push:extrap_depth %}
+                        {% assign _substack = _substack | push:_stack %}
+                        {% assign _stack = _substack %}
+
+                        {% assign parent = child %}
+                        {% assign parent_pages = deeper_pages %}
+
+                        {% include path_tree.html %}
+
+                        {% comment %} Then we pull stuff out of "_stack" to reverse the operations {% endcomment %}
+                        {% assign parent = _stack[0] %}
+                        {% assign parent_pages = _stack[1] %}
+                        {% assign deeper_pages = _stack[2] %}
+                        {% assign current_depth = _stack[3] %}
+                        {% assign extra_depth = _stack[4] %}
+                        {% assign _stack = _stack[5] %}
+                        {% assign current_depth = current_depth | minus: 1 %}
+                        {% assign current_depth = current_depth | minus: extra_depth %}
+                    {% endif %}
+                </li>
+            {% endunless %}
+        {% endfor %}
+    </ul>
+{% endunless %}
+
+{% comment %} We'll unset the variables that should be passed up and down the stack... {% endcomment %}
+{% assign parent = nil %}
+{% assign parent_pages = nil %}
+{% assign deeper_pages = nil %}
+{% assign current_depth = nil %}
