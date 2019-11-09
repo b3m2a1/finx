@@ -90,52 +90,249 @@ At the end, close off any open nodes (by walking the rest of the stack) and our 
 
 {% assign node_stack = ""|split:"" %}
 
+{% assign leading_char=parent|slice:0 %}
+{% if leading_char == "/" %}
+    {% assign end_bound = parent|size %}
+    {% assign parent = parent | slice:1,end_bound %}
+{% endif %}
+{% assign trailing_char=parent|slice:-1 %}
+{% if trailing_char == "/" %}
+    {% assign end_bound = parent|size|minus:1 %}
+    {% assign parent = parent | slice:0,end_bound %}
+{% endif %}
+
 {% assign d_split = parent | split:"/" %}
 {% assign parent_depth = d_split | size %}
 {% assign parent_page = nil %}
 {% assign parent_name = d_split | last | split:"." | first %}
-{% assign parent_directory = "" %}
-{% for d in d_split limit:(d_split|size|minus:1)) %}
-    {% assign parent_directory = parent_directory | append:"/" | append:d %}
-{% endfor %}
+{% if parent contains "." %}
+    {% assign parent_directory = "" %}
+    {% assign d_lim = d_split.size|minus: 1 %}
+    {% for d in d_split limit:d_lim %}
+        {% if d.size > 0 %}
+            {% assign parent_directory = parent_directory | append:"/" | append:d %}
+        {% endif %}
+    {% endfor %}
+{% else %}
+    {% assign parent_directory = parent %}
+{% endif %}
 {% assign parent_url = parent %}
 {% assign parent_children = ""|split:"" %}
 
-{% assign prev_depth = parent_depth %}
-{% assign prev_page = parent_page %}
-{% assign prev_name = parent_name %}
-{% assign prev_directory = parent_directory %}
-{% assign prev_url = parent_url %}
-{% assign prev_children = parent_children %}
-
-{% assign page_set = page_set | sort %}
-{% for page in page_set %}
+{% assign page_set = page_set | sort:"url" %}
+{%- for page in page_set -%}
     {% comment %}
         We first determine the parameters for the given page
     {% endcomment %}
-    {% assign d_split = page.url | split:"/" %}
-    {% assign depth = d_split | size %}
-    {% if (d_split | last) contains "." %}
-        {% assign depth = depth | minus:1 %}
+
+    {% assign url=page.url %}
+    {% assign leading_char=url|slice:0 %}
+    {% if leading_char == "/" %}
+        {% assign end_bound = url|size %}
+        {% assign url = url | slice:1,end_bound %}
     {% endif %}
-    {% assign name = d_split | last | split:"." | first %}
+    {% assign trailing_char=url|slice:-1 %}
+    {% if trailing_char == "/" %}
+        {% assign end_bound = url|size|minus:1 %}
+        {% assign url = url | slice:0,end_bound %}
+    {% endif %}
+    {% assign d_split = url | split:"/" %}
+    {% assign depth = d_split | size %}
+    {% assign d_last = d_split | last %}
+    {% assign name = page.path | split:"/" | last | split:"." | first %}
     {% assign directory = "" %}
-    {% for d in d_split limit:(d_split|size|minus:1)) %}
-        {% assign directory = directory | append:"/" | append:d %}
+    {% assign d_lim = depth %}
+    {% if d_last contains "." %}
+        {% assign d_lim = d_lim | minus:1 %}
+    {% endif %}
+    {% for d in d_split limit:d_lim) %}
+        {% if d.size > 0 %}
+            {% assign directory = directory | append:"/" | append:d %}
+        {% endif %}
     {% endfor %}
     {% assign url = page.url %}
     {% assign children = ""|split:"" %}
 
-    {% comment %}
-        Now we check if this is in the same branch as the previous element we looked at
-    {% endcomment %}
-    {% if url contains prev_parent_url %}
-        {% comment %} means we're still in the same tree {% endcomment %}
+    {% unless prev_directory == nil %}
+
+        {% if url contains prev_directory %}
+            {% assign child_page = true %}
+        {% else %}
+            {% assign child_page = false %}
+        {% endif %}
+
+        {% comment %}
+            Now we check if this is in the same branch as the previous element we looked at
+        {% endcomment %}
+
+        {% if child_page %}
+            {% comment %}
+                Means we're still in the same tree. Because of this want to put the prev_node in the parent_node
+            {% endcomment %}
+
+            {% if prev_name != "index" %}
+                {% assign node = ""|split:"" %}
+                {% assign node = node|push:prev_depth %}
+                {% assign node = node|push:prev_page %}
+                {% assign node = node|push:prev_name %}
+                {% assign node = node|push:prev_directory %}
+                {% assign node = node|push:prev_url %}
+                {% assign node = node|push:prev_children %}
+                {% assign parent_children = parent_children|push:node %}
+            {% else %}
+                {% assign parent_page = prev_page %}
+                {% assign parent_url = prev_url %}
+            {% endif %}
+
+        {% else %}
+            {% comment %}
+                This means at _some_ point we jumped a branch. We need to figure out where we made this jump.
+                Once we have that, we can walk the rest of the way back up our tree, closing as necessary
+                We do this _first_ so that we _are_ a proper child_page
+            {% endcomment %}
+
+            {% assign alignment = 0 %}
+            {% if prev_depth > depth %}
+                {% assign bounds = depth|minus:1 %}
+            {% else %}
+                {% assign bounds = prev_depth|minus:1 %}
+            {% endif %}
+            {% assign prev_split = prev_url | split:"/" %}
+            {% assign cur_split = url | split:"/" %}
+            <pre >
+                {{ bounds | inspect }}
+                {{ prev_split | inspect }}
+                {{  cur_split | inspect }}
+            </pre>
+            {% assign need_to_close = 0 %}
+            {% for i in (0..bounds) %}
+                {% assign new = cur_split[i] %}
+                {% assign old = prev_split[i] %}
+                {% assign need_to_close = prev_depth | minus:i %}
+                {% if new != old %}
+                    {% break %}
+                {% endif %}
+            {% endfor %}
+            <pre > ??? {{ need_to_close | inspect }} {{ new | inspect }} {{ old | inspect }} </pre>
+            {% for i in (1..need_to_close) %}
+                {% comment %}
+                    To close a node, we stick the current node into the parent_children
+                    Then we pop a node off the node_stack, set all of the parent_* values to the standard values and
+                    then assign all of the parent_node to the parent_* names
+                {% endcomment %}
+
+                {% assign node = ""|split:"" %}
+                {% assign node = node|push:prev_depth %}
+                {% assign node = node|push:prev_page %}
+                {% assign node = node|push:prev_name %}
+                {% assign node = node|push:prev_directory %}
+                {% assign node = node|push:prev_url %}
+                {% assign node = node|push:prev_children %}
+                {% assign parent_children = parent_children|push:node %}
+                {% if prev_name == "index" %}
+                    {% assign parent_page = prev_page %}
+                    {% assign parent_url = prev_url %}
+                {% endif %}
+
+                {% assign prev_depth = parent_depth %}
+                {% assign prev_page = parent_page %}
+                {% assign prev_name = parent_name %}
+                {% assign prev_directory = parent_directory %}
+                {% assign prev_url = parent_url %}
+                {% assign prev_children = parent_children %}
+
+                {% assign node = node_stack[0] %}
+                {% assign node_stack = node_stack[2] %}
+                {% assign parent_depth = node[0] %}
+                {% assign parent_page = node[1] %}
+                {% assign parent_name = node[2] %}
+                {% assign parent_directory = node[3] %}
+                {% assign parent_url = node[4] %}
+                {% assign parent_children = node[5] %}
+            {% endfor %}
+        <pre > >>> {{ parent_name | inspect }} {{ prev_name | inspect }} </pre>
+
+        {% endif %}
+
         {% if depth > prev_depth %}
             {% comment %}
-                Means we need to drop down some number of levels:
-                    we put the current parent_* data on the stack
+                Means we may need to drop down some number of levels.
+                We put the "parent" on the stack, make "prev" into "parent", then populate a "prev" by adding the
+                    next element of d_split to prev_directory and setting everything else to effectively the default
+                    values
+                One annoying thing: we need a single consistent way to think about depth
+                Is it the entire file path or is it just the directory part? For this we really only care about the
+                directory depth since that's all we'd need to remake, but in other contexts the entire depth matters too
             {% endcomment %}
+
+            {% assign bound_high = depth|minus:1 %}
+            {% if prev_url contains "." %}
+                {% assign bound_high = bound_high|minus:1 %}
+            {% endif %}
+            {% assign bound_low = prev_depth %}
+            {% if url contains "." %}
+                {% assign bound_low = bound_low|minus:1 %}
+            {% endif %}
+            {% assign step_path = prev_directory %}
+            {% assign wtf = prev_directory %}
+
+            <pre> {{bound_low}} {{bound_high}} </pre>
+            {% for i in (bound_low..bound_high) %}
+                {% if i > bound_low %}
+                    {% assign parent_node = ""|split:"" %}
+                    {% assign parent_node = parent_node|push:parent_depth %}
+                    {% assign parent_node = parent_node|push:parent_page %}
+                    {% assign parent_node = parent_node|push:parent_name %}
+                    {% assign parent_node = parent_node|push:parent_directory %}
+                    {% assign parent_node = parent_node|push:parent_url %}
+                    {% assign parent_node = parent_node|push:parent_children %}
+                    {% assign new_stack = ""|split:"" %}
+                    {% assign new_stack = new_stack|push:parent_node %}
+                    {% assign node_stack_size = node_stack | size %}
+                    {% if node_stack_size > 0 %}
+                        {% assign new_stack_size = node_stack[1] %}
+                        {% assign new_stack_size = new_stack_size|plus:1 %}
+                        {% assign new_stack = new_stack|push: new_stack_size %}
+                    {% else %}
+                        {% assign new_stack = new_stack|push: 1 %}
+                    {% endif %}
+                    {% assign new_stack = new_stack|push:node_stack %}
+                    {% assign node_stack = new_stack %}
+
+                    {% assign parent_depth = prev_depth %}
+                    {% assign parent_page = prev_page %}
+                    {% assign parent_name = prev_name %}
+                    {% assign parent_directory = prev_directory %}
+                    {% assign parent_url = prev_url %}
+                    {% assign parent_children = prev_children %}
+                {% endif %}
+
+                {% assign step_path = step_path | append:"/" | append:d_split[i] %}
+                {% assign leading_char = step_path|slice:0 %}
+                {% if leading_char == "/" %}
+                    {% assign end_bound = step_path|size %}
+                    {% assign step_path = step_path | slice:1,end_bound %}
+                {% endif %}
+                {% assign leading_char = step_path|slice:-1 %}
+                {% if trailing_char == "/" %}
+                    {% assign end_bound = step_path|size|minus:1 %}
+                    {% assign step_path = step_path | slice:0,end_bound %}
+                {% endif %}
+                {% assign prev_d_split = step_path | split:"/" %}
+                {% assign prev_depth = prev_d_split | size %}
+                {% assign prev_page = nil %}
+                {% assign prev_name = prev_d_split | last | split:"." | first %}
+                {% assign prev_directory = "" %}
+                {% assign prev_d_lim = prev_d_split.size|minus:1 %}
+                {% for d in prev_d_split limit:prev_d_lim %}
+                    {% if d.size > 0 %}
+                        {% assign prev_directory = prev_directory | append:"/" | append:d %}
+                    {% endif %}
+                {% endfor %}
+                {% assign prev_url = step_path|prepend:"/" %}
+                {% assign prev_children = ""|split:"" %}
+
+            {% endfor %}
 
             {% assign parent_node = ""|split:"" %}
             {% assign parent_node = parent_node|push:parent_depth %}
@@ -144,83 +341,36 @@ At the end, close off any open nodes (by walking the rest of the stack) and our 
             {% assign parent_node = parent_node|push:parent_directory %}
             {% assign parent_node = parent_node|push:parent_url %}
             {% assign parent_node = parent_node|push:parent_children %}
-
-            {% assign _substack = ""|split:"" %}
-            {% assign _substack = _substack|push:parent_node %}
-            {% assign _substack = _substack|push: (node_stack[1]|plus:1) %}
-            {% assign _substack = _substack|push:node_stack %}
-            {% assign node_stack = _substack %}
-
-            {% comment %}
-                AT THIS POINT WE NEED TO HANDLE INSERTING LIKE THOSE THINGS WHERE WE JUMP MULTIPLE ELEMENTS
-            {% endcomment %}
-
-            {% assign parent_depth = depth %}
-            {% assign parent_page = page %}
-            {% assign parent_name = name %}
-            {% assign parent_directory = directory %}
-            {% assign parent_url = url %}
-            {% assign parent_children = children %}
-        {% else %}
-            {% comment %}
-                Means we're at the same level (otherwise the first test would fail) so we just push the prev_* data onto the parent_children
-            {% endcomment %}
-            {% assign node = ""|split:"" %}
-            {% assign node = node|push:prev_depth %}
-            {% assign node = node|push:prev_page %}
-            {% assign node = node|push:prev_name %}
-            {% assign node = node|push:prev_directory %}
-            {% assign node = node|push:prev_url %}
-            {% assign node = node|push:prev_children %}
-            {% assign parent_children = parent_children|push:node %}
-        {% endif %}
-
-    {% else %}
-        {% comment %}
-            This means at _some_ point we jumped up a branch. We need to figure out where we made this jump.
-            Once we have that, we can walk the rest of the way back up our tree, closing as necessary
-        {% endcomment %}
-
-        {% assign alignment = 0 %}
-        {% if prev_depth > depth %}
-            {% assign bounds = depth %}
-        {% else %}
-            {% assign bounds = prev_depth %}
-        {% endif %}
-        {% assign prev_split = prev_url | split:"/" %}
-        {% assign cur_split = url | split:"/" %}
-        {% for i in (0..bounds) %}
-            {% assign new = cur_split[i] %}
-            {% assign old = prev_split[i] %}
-            {% if new != old %}
-                {% assign need_to_close = prev_depth | minus:i %}
-                {% break %}
+            {% assign new_stack = ""|split:"" %}
+            {% assign new_stack = new_stack|push:parent_node %}
+            {% assign node_stack_size = node_stack | size %}
+            {% if node_stack_size > 0 %}
+                {% assign new_stack_size = node_stack[1] %}
+                {% assign new_stack_size = new_stack_size|plus:1 %}
+                {% assign new_stack = new_stack|push: new_stack_size %}
+            {% else %}
+                {% assign new_stack = new_stack|push: 1 %}
             {% endif %}
-        {% endfor %}
-        {% for i in (1..need_to_close) %}
-            {% comment %}
-                To close a node, we stick the current node into the parent_children
-                Then we pop a node off the node_stack, set all of the parent_* values to the standard values and
-                then assign all of the parent_node to the parent_* names
-            {% endcomment %}
-            {% assign node = ""|split:"" %}
-            {% assign node = node|push:prev_depth %}
-            {% assign node = node|push:prev_page %}
-            {% assign node = node|push:prev_name %}
-            {% assign node = node|push:prev_directory %}
-            {% assign node = node|push:prev_url %}
-            {% assign node = node|push:prev_children %}
-            {% assign parent_children = parent_children|push:node %}
-            {% assign node = node_stack[0] %}
-            {% assign node_stack = node_stack[2] %}
-            {% assign prev_depth = node[0] %}
-            {% assign prev_page = node[1] %}
-            {% assign prev_name = node[2] %}
-            {% assign prev_directory = node[3] %}
-            {% assign prev_url = node[4] %}
-            {% assign prev_children = node[5] %}
-        {% endfor %}
-    {% endif %}
+            {% assign new_stack = new_stack|push:node_stack %}
+            {% assign node_stack = new_stack %}
+
+            {% assign parent_depth = prev_depth %}
+            {% assign parent_page = prev_page %}
+            {% assign parent_name = prev_name %}
+            {% assign parent_directory = prev_directory %}
+            {% assign parent_url = prev_url %}
+            {% assign parent_children = prev_children %}
+
+        {% endif %}
+
+        <pre> EndLoop |
+                stack_size: {{node_stack[1]}}
+                {{url}}
+                {{prev_url}}
+                {{parent_url}}
+        </pre>
+
+    {% endunless %}
 
     {% comment %}
         After every single step we also make it so that the current data is the prev_* data so that the loop may continue
@@ -233,4 +383,81 @@ At the end, close off any open nodes (by walking the rest of the stack) and our 
     {% assign prev_url = url %}
     {% assign prev_children = children %}
 
-{% endfor %}
+{%- endfor -%}
+
+{% comment %}
+    At this point we need to push the prev_data onto its parent and also have to do some cleanup work if the node stack isn't closed
+    What this will look like, in general, is taking the current data (prev)
+{% endcomment %}
+
+{% assign debug_pre_tree = parent_children %}
+{% assign debug_stack = node_stack %}
+
+<pre> {{parent_name}} </pre>
+
+{% if node_stack | size > 0 %}
+    {% assign remaining_nodes = node_stack[1] %}
+    {% for n in (1..remaining_nodes) %}
+
+        {% if prev_name != "index" %}
+            {% assign node = ""|split:"" %}
+            {% assign node = node|push:depth %}
+            {% assign node = node|push:page %}
+            {% assign node = node|push:name %}
+            {% assign node = node|push:directory %}
+            {% assign node = node|push:url %}
+            {% assign node = node|push:children %}
+            {% assign parent_children = parent_children|push:node %}
+        {% else %}
+            {% assign parent_page = prev_page %}
+            {% assign parent_url = prev_url %}
+        {% endif %}
+
+        {% assign depth = parent_depth %}
+        {% assign page = parent_page %}
+        {% assign name = parent_name %}
+        {% assign directory = parent_directory %}
+        {% assign url = parent_url %}
+        {% assign children = parent_children %}
+
+        {% assign node = node_stack[0] %}
+        {% assign node_stack = node_stack[2] %}
+        {% assign parent_depth = node[0] %}
+        {% assign parent_page = node[1] %}
+        {% assign parent_name = node[2] %}
+        {% assign parent_directory = node[3] %}
+        {% assign parent_url = node[4] %}
+        {% assign parent_children = node[5] %}
+
+    {% endfor %}
+
+{% endif %}
+
+
+{% if prev_name != "index" %}
+    {% assign node = ""|split:"" %}
+    {% assign node = node|push:prev_depth %}
+    {% assign node = node|push:prev_page %}
+    {% assign node = node|push:prev_name %}
+    {% assign node = node|push:prev_directory %}
+    {% assign node = node|push:prev_url %}
+    {% assign node = node|push:prev_children %}
+    {% assign parent_children = parent_children|push:node %}
+{% else %}
+    {% assign parent_page = prev_page %}
+    {% assign parent_url = prev_url %}
+{% endif %}
+
+{% assign _main_node = ""|split:"" %}
+{% assign _main_node = _main_node|push:parent_depth %}
+{% assign _main_node = _main_node|push:parent_page %}
+{% assign _main_node = _main_node|push:parent_name %}
+{% assign _main_node = _main_node|push:parent_directory %}
+{% assign _main_node = _main_node|push:parent_url %}
+{% assign _main_node = _main_node|push:parent_children %}
+
+{% assign site_path_tree = ""|split:"" %}
+{% assign site_path_tree = site_path_tree|push:_main_node %}
+
+{% assign _debug_tree = site_path_tree %}
+{% assign _node_stack = node_stack %}

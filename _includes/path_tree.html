@@ -1,110 +1,119 @@
 {% comment %} ##### Initialize passed parameters ####### {% endcomment %}
 
-{% comment %} setup: max_depth {% endcomment %}
-{% if max_depth == nil %}
-    {% assign max_depth = include.max_depth %}
-    {% unless max_depth %}
-        {% assign max_depth = 10 %}
-    {% endunless %}
-{% endif %}
+{%- if site_path_tree == nil -%}
+    {% comment %} setup: max_depth {% endcomment %}
+    {% if max_depth == nil %}
+        {% assign max_depth = include.max_depth %}
+        {% unless max_depth %}
+            {% assign max_depth = 10 %}
+        {% endunless %}
+    {% endif %}
 
-{% comment %} setup: list_class {% endcomment %}
-{% if list_class == nil %}
-    {% assign list_class = include.list_class %}
+    {% comment %} setup: list_class {% endcomment %}
     {% if list_class == nil %}
-        {% assign list_class = "sitemap-link-list" %}
-    {% endif %}
-{% endif %}
-
-{% comment %} setup: link_class {% endcomment %}
-{% if link_class == nil %}
-    {% assign link_class = include.list_class %}
-    {% if link_class == nil %}
-        {% assign link_class = "sitemap-link" %}
-    {% endif %}
-{% endif %}
-
-{% comment %} setup: page_set {% endcomment %}
-{% if parent == nil %}
-    {% assign parent = include.parent %}
-{% endif %}
-{% if parent_pages == nil %}
-    {% assign parent_pages = site.html_pages %}
-{% endif %}
-{% if parent == nil %}
-    {% assign parent = "/" %}
-    {% assign current_depth = 0 %}
-    {% assign page_set = parent_pages %}
-{% else %}
-    {% assign page_set = ""|split:"" %}
-    {% assign parent_dir = parent | split:"." | first %}
-    {% for page in parent_pages %}
-        {% if page.url contains parent_dir %}
-           {% assign page_set = page_set | push:page %}
+        {% assign list_class = include.list_class %}
+        {% if list_class == nil %}
+            {% assign list_class = "sitemap-link-list" %}
         {% endif %}
-    {% endfor %}
-    {% assign current_depth = parent | split:"/" | size %}
-{% endif %}
+    {% endif %}
 
-{% include populate_path_tree.html %}
+    {% comment %} setup: link_class {% endcomment %}
+    {% if link_class == nil %}
+        {% assign link_class = include.list_class %}
+        {% if link_class == nil %}
+            {% assign link_class = "sitemap-link" %}
+        {% endif %}
+    {% endif %}
 
-{{ parent_children | inspect }}
+    {% comment %} setup: page_set {% endcomment %}
+    {% if parent == nil %}
+        {% assign parent = include.parent %}
+    {% endif %}
+    {% if parent_pages == nil %}
+        {% assign parent_pages = site.html_pages %}
+    {% endif %}
+    {% if parent == nil %}
+        {% assign parent = "/" %}
+        {% assign current_depth = 0 %}
+        {% assign page_set = parent_pages %}
+    {% else %}
+        {% assign page_set = ""|split:"" %}
+        {% assign parent_dir = parent | split:"." | first %}
+        {% for page in parent_pages %}
+            {% if page.url contains parent_dir %}
+               {% assign page_set = page_set | push:page %}
+            {% endif %}
+        {% endfor %}
+        {% assign current_depth = parent | split:"/" | size %}
+    {% endif %}
 
-{% comment %}
-<p> {{current_depth}} {{parent_pages | size }} {{subpages | size}} {{deeper_pages | size}} </p>
-{% endcomment %}
+    {% comment %}
+        This sets up a "site_path_tree" variable that we can walk down
+        We need to null-out some variables used at load-time, but beyond that everything is good and clean and normal
+    {% endcomment %}
 
-{% if _stack == nil %}
+    {% assign prev_directory = nil %}
+    {%- include populate_path_tree.html -%}
     {% assign _stack = "" | split:"" %}
-{% endif %}
 
-{% comment %} ##### Construct sitemap at this level #######
-{% unless subpages == nil %}
+{%- endif -%}
+
+{% comment %} ##### Construct sitemap at this level ####### {% endcomment %}
+{%- assign num_nodes = site_path_tree|size -%}
+{%- if num_nodes > 0 -%}
     <ul class="{{list_class}}">
-        {% for child in subpages %}
-            {% assign filename = child.url | split: '/' | last %}
-            {% assign name = filename | split: "." | first | url_decode %}
-            {% assign sidebar_excludes = 'index.html search.html 404.html about.html' %}
-            {% unless sidebar_excludes contains filename %}
+        {% for node in site_path_tree %}
+            {% assign child = node[1] %}
+            {% if child == nil %}
                 <li class="{{link_class}}">
-                    <a href='{{ child.url }}'>{{name}}</a>
-                    {% if max_depth >= current_depth | plus: 1 %}
-                        {% assign current_depth = current_depth | plus: 1 %}
-                        {% comment %} We'll maintain a stack for recursion {% endcomment %}
-                        {% assign _substack = "" | split:"" %}
-                        {% assign _substack = _substack | push:parent %}
-                        {% assign _substack = _substack | push:parent_pages %}
-                        {% assign _substack = _substack | push:deeper_pages %}
-                        {% assign _substack = _substack | push:current_depth %}
-                        {% assign _substack = _substack | push:extrap_depth %}
-                        {% assign _substack = _substack | push:_stack %}
-                        {% assign _stack = _substack %}
-
-                        {% assign parent = child %}
-                        {% assign parent_pages = deeper_pages %}
+                    <a>{{node[2] | url_decode}}</a>
+                    {%- if max_depth >= current_depth | plus: 1 -%}
+                        {%- assign _substack = "" | split:"" -%}
+                        {%- assign _substack = _substack | push:site_path_tree -%}
+                        {%- assign _substack = _substack | push:_stack -%}
+                        {%- assign _stack = _substack -%}
+                        {%- assign site_path_tree = node[5] -%}
+                        {%- if site_path_tree == nil %}
+                            {% assign site_path_tree = "" | split:"" %}
+                        {%- endif -%}
 
                         {% include path_tree.html %}
 
                         {% comment %} Then we pull stuff out of "_stack" to reverse the operations {% endcomment %}
-                        {% assign parent = _stack[0] %}
-                        {% assign parent_pages = _stack[1] %}
-                        {% assign deeper_pages = _stack[2] %}
-                        {% assign current_depth = _stack[3] %}
-                        {% assign extra_depth = _stack[4] %}
-                        {% assign _stack = _stack[5] %}
-                        {% assign current_depth = current_depth | minus: 1 %}
-                        {% assign current_depth = current_depth | minus: extra_depth %}
-                    {% endif %}
+                        {%- assign site_path_tree = _substack[0] -%}
+                        {%- assign _stack = _substack[1] -%}
+                    {%- endif -%}
                 </li>
-            {% endunless %}
-        {% endfor %}
+            {% else %}
+                {%- assign current_depth = node[0] -%}
+                {%- assign filename = child.url | split: '/' | last -%}
+                {%- assign name = filename | split: "." | first | url_decode -%}
+                {%- assign sidebar_excludes = 'index.html search.html 404.html about.html' -%}
+                {%- unless sidebar_excludes contains filename -%}
+                    <li class="{{link_class}}">
+                        <a href='{{ child.url }}'>{{name}}</a>
+                        {%- if max_depth >= current_depth | plus: 1 -%}
+                            {%- assign _substack = "" | split:"" -%}
+                            {%- assign _substack = _substack | push:site_path_tree -%}
+                            {%- assign _substack = _substack | push:_stack -%}
+                            {%- assign _stack = _substack -%}
+                            {%- assign site_path_tree = node[5] -%}
+                            {%- if site_path_tree == nil %}
+                                {% assign site_path_tree = "" | split:"" %}
+                            {%- endif -%}
+
+                            {% include path_tree.html %}
+
+                            {% comment %} Then we pull stuff out of "_stack" to reverse the operations {% endcomment %}
+                            {%- assign site_path_tree = _substack[0] -%}
+                            {%- assign _stack = _substack[1] -%}
+                        {%- endif -%}
+                    </li>
+                {%- endunless -%}
+            {%- endif -%}
+        {%- endfor -%}
     </ul>
-{% endunless %}
+{%- endif -%}
 
-{% comment %} We'll unset the variables that should be passed up and down the stack... {% endcomment %}
 {% assign parent = nil %}
-{% assign parent_pages = nil %}
-{% assign deeper_pages = nil %}
-{% assign current_depth = nil %}
-
-{% endcomment %}
+{% assign site_path_tree = nil %}
