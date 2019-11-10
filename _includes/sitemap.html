@@ -1,9 +1,9 @@
 <div class="sitemap">
-    {% if site.sitemap_roots %}
-        {% for root in site.sitemap_roots %}
-            {% include path_tree.html parent = root max_depth = site.sitemap_depth %}
-        {% endfor %}
-    {% else %}
-        {% include path_tree.html %}
-    {% endif %}
+    {%- if site.sitemap_roots -%}
+        {%- for root in site.sitemap_roots -%}
+            {%- include path_tree.html parent = root max_depth = site.sitemap_depth -%}
+        {%- endfor -%}
+    {%- else -%}
+        {%- include path_tree.html -%}
+    {%- endif -%}
 </div>
