@@ -50,12 +50,17 @@ defaults:
     values:
       layout: "page"
   - scope:
-      path: "References/*"
+      path: "References"
+      type: "pages"
     values:
+      optional_scripts: true
       layout: "refs"
   - scope:
-      path: "Documentation/*"
+      path: "Documentation"
+      type: "pages"
     values:
+      optional_scripts: true
+      annotations_type: "docs"
       layout: "docs"
 
 relative_links:
