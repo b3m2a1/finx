@@ -44,7 +44,7 @@ var AnnotateMD;
         function SectionMaker(_a) {
             // set up something that will make a Section out of the data,
             // setting it up to be collapsible (if specified) or collapsed (if specified)
-            var _b = _a === void 0 ? {} : _a, _c = _b.section_class, section_class = _c === void 0 ? null : _c, _d = _b.header_class, header_class = _d === void 0 ? null : _d, _e = _b.body_class, body_class = _e === void 0 ? null : _e, _f = _b.collapsible, collapsible = _f === void 0 ? true : _f, _g = _b.collapsed, collapsed = _g === void 0 ? false : _g;
+            var _b = _a === void 0 ? {} : _a, _c = _b.section_class, section_class = _c === void 0 ? null : _c, _d = _b.header_class, header_class = _d === void 0 ? null : _d, _e = _b.body_class, body_class = _e === void 0 ? null : _e, _f = _b.collapsible, collapsible = _f === void 0 ? true : _f, _g = _b.collapsed, collapsed = _g === void 0 ? false : _g, _h = _b.header_elements, header_elements = _h === void 0 ? 1 : _h;
             function make_groups(match) {
                 var nodes = match.getNodeList({ recurse: false });
                 var first_node = nodes[0];
@@ -97,7 +97,12 @@ var AnnotateMD;
                 // we can do any of the collapse behavior now if we want...
                 parent.replaceChild(section_node, first_node);
                 head_node.appendChild(first_node);
-                for (var i = 1; i < nodes.length; i++) {
+                for (var i = 1; i < header_elements; i++) {
+                    var n = nodes[i];
+                    head_node.appendChild(n);
+                    // parent.removeChild(n);
+                }
+                for (var i = header_elements; i < nodes.length; i++) {
                     var n = nodes[i];
                     body_node.appendChild(n);
                     // parent.removeChild(n);

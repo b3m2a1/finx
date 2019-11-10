@@ -74,7 +74,7 @@ var AnnotateMD;
             this.complete = true;
         };
         PatternMatch.prototype.slice = function (start, end) {
-            var new_match = Object.assign({}, this);
+            var new_match = Object.assign(Object.create(Object.getPrototypeOf(this)), this);
             new_match.nodes = new_match.nodes.slice(start, end);
             return new_match;
         };

@@ -24,14 +24,23 @@ var subsection_pattern = new AnnotateMD.SequencePattern([
 var method_pattern = new AnnotateMD.SequencePattern([
     new AnnotateMD.TagPattern(["p"]),
     new AnnotateMD.TagPattern(["div", "pre"]),
-    new AnnotateMD.ExceptPattern(new AnnotateMD.TagPattern(["div", "pre", "h1", "h2", "h3", "h4", "h5"])),
-], [[1, 1], [1, 1], [1, 2]], {
+    new AnnotateMD.TagPattern(["p"]),
+    new AnnotateMD.TagPattern(["ul"]) // the parameters
+], [[1, 1], [1, 1], [0, 1], [0, 1]], {
     transform: function (match) {
+        var submatch = match.slice(1, 4);
+        var anchor_parent = match.nodes[0];
+        var anchor_node = anchor_parent.firstElementChild;
+        var anchor_id = anchor_node.id;
+        var head_node = match.nodes[1];
+        head_node.id = anchor_id;
+        anchor_parent.remove();
         AnnotateMD.Annotations.SectionMaker({
             section_class: "docs-method",
             header_class: "docs-method-header",
-            body_class: "docs-method-body"
-        })(match.slice(1, -1));
+            body_class: "docs-method-body",
+            collapsed: true
+        })(submatch);
     }
 });
 var annotator = new AnnotateMD.Annotator([
