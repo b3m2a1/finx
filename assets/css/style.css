@@ -66,7 +66,24 @@
  */
 
 .main-header {
-    border-bottom: solid 20px rebeccapurple;
+    border-bottom: solid 50px rgb(100, 75, 150);
+}
+
+.toggle-sidebar-button {
+    background: none;
+    border: none;
+}
+.toggle-sidebar-button:hover {
+    background: rebeccapurple;
+}
+
+.navbar {
+    min-height: 100px;
+}
+
+.navbar-brand {
+    font-size: 30px;
+    font-weight: bold;
 }
 
 .footer {
