@@ -54,6 +54,7 @@ defaults:
       type: "pages"
     values:
       optional_scripts: true
+      custom_styles: "refs"
       layout: "refs"
   - scope:
       path: "Documentation"
@@ -61,6 +62,7 @@ defaults:
     values:
       optional_scripts: true
       annotations_type: "docs"
+      custom_styles: "docs"
       layout: "docs"
 
 relative_links:
