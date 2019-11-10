@@ -3,3 +3,9 @@
 {% include tipue.html %}
 <script src="{{site.url}}/assets/js/annotateMD.js"></script>
 <script src="{{site.url}}/assets/js/simple_transforms.js"></script>
+{% if page.annotations_type %}
+<script src="{{site.url}}/assets/js/{{page.annotations_type}}_annotations.js"></script>
+{% endif %}
+{% if page.optional_scripts %}
+    {% include optional_scripts.html %}
+{% endif %}
