@@ -280,6 +280,10 @@ pre {
     border-radius: 2px;
 }
 
+pre .highlight {
+    background-color: whitesmoke;
+}
+
 /*
     BREADCRUMBS
  */
