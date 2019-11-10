@@ -31,10 +31,12 @@ var method_pattern = new AnnotateMD.SequencePattern([
         var submatch = match.slice(1, 4);
         var anchor_parent = match.nodes[0];
         var anchor_node = anchor_parent.firstElementChild;
-        var anchor_id = anchor_node.id;
-        var head_node = match.nodes[1];
-        head_node.id = anchor_id;
-        anchor_parent.remove();
+        if (anchor_node !== null) {
+            var anchor_id = anchor_node.id;
+            var head_node = match.nodes[1];
+            head_node.id = anchor_id;
+            anchor_parent.remove();
+        }
         AnnotateMD.Annotations.SectionMaker({
             section_class: "docs-method",
             header_class: "docs-method-header",
