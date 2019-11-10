@@ -1,11 +1,3 @@
-{% comment %} Gives a simple little page header {% endcomment %}
-
-<div class="page-header js-page-header">
-  {% if site.aux_links != nil %}
-    <ul class="list-style-none text-small aux-nav">
-      {% for link in site.aux_links %}
-        <li class="d-inline-block my-0{% unless forloop.last %} mr-2{% endunless %}"><a href="{{ link.last }}">{{ link.first }}</a></li>
-      {% endfor %}
-    </ul>
-  {% endif %}
+<div class="page-header">
+  {%- include breadcrumbs.html -%}
 </div>
