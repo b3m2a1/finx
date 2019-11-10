@@ -101,7 +101,7 @@
                     {%- assign sidebar_excludes = 'index.html search.html 404.html about.html' -%}
                     {%- unless sidebar_excludes contains filename -%}
                         <li class="{{link_class}}">
-                            <a href='{{ child.url }}'>{{name}}</a>
+                            <a href='{{site.url}}{{ child.url }}'>{{name}}</a>
                             {%- if max_depth >= current_depth | plus: 1 -%}
                                 {%- assign _substack = "" | split:"" -%}
                                 {%- assign _substack = _substack | push:_stack -%}
