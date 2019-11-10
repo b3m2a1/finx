@@ -50,11 +50,11 @@ defaults:
     values:
       layout: "page"
   - scope:
-      path: "References"
+      path: "References/*"
     values:
       layout: "refs"
   - scope:
-      path: "Documentation"
+      path: "Documentation/*"
     values:
       layout: "docs"
 
