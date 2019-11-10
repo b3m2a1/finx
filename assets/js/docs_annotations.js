@@ -4,7 +4,7 @@ var PatternMatch = AnnotateMD.PatternMatch;
 var description_pattern = new AnnotateMD.SequencePattern([
     new AnnotateMD.TagPattern(["h1", "h2"]),
     new AnnotateMD.TagPattern(["p"]),
-], [[1, 1], [1, 1]], {
+], [[1, 1], [0, 1]], {
     applications: 1,
     transform: function (match) {
         AnnotateMD.Annotations.ClassAdder("docs-title")(match.slice(0, 1));

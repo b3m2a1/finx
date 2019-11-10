@@ -279,3 +279,26 @@ pre {
     border: solid 1px rgba(200, 200, 200, .1);
     border-radius: 2px;
 }
+
+/*
+    BREADCRUMBS
+ */
+
+.page-header .breadcrumb {
+    background: none;
+    border: none;
+    margin: 0;
+    padding: 0;
+    padding-left: 25px;
+    padding-bottom: 10px;
+    color: darkslategray
+}
+.page-header .breadcrumb .active{
+    color: rebeccapurple;
+}
+.page-header .breadcrumb .active a{
+    color: rebeccapurple;
+}
+.page-header .breadcrumb .active a:hover {
+    color: rebeccapurple;
+}
