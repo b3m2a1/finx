@@ -12,6 +12,14 @@
     width: 100%;
 }
 
+a {
+    color: rebeccapurple;
+}
+
+a:hover {
+    color: rebeccapurple;
+}
+
 /*
     SITEMAP STYLES
 */
