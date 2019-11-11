@@ -46,7 +46,7 @@
             {%- endif -%}
             {%- assign b_path_el = b_path_el | url_decode | escape -%}
             {%- unless b_path_url == nil -%}
-                <li class="breadcrumb-item{{b_active}}"><a class="breadcrumb-link" href="{{b_path_url}}">{{b_path_el}}</a></li>
+                <li class="breadcrumb-item{{b_active}}"><a class="breadcrumb-link" href="{{site.url}}/{{b_path_url}}">{{b_path_el}}</a></li>
             {%- else -%}
                 <li class="breadcrumb-item{{b_active}}"><a class="breadcrumb-link">{{b_path_el}}</a></li>
             {%- endunless -%}
