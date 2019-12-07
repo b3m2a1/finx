@@ -108,7 +108,14 @@ var AnnotateMD;
             this.applications = applications;
             this._cur_depth = -1;
             this._applied = 0;
+            this.enabled = true;
         }
+        Pattern.prototype.disable = function () {
+            this.enabled = false;
+        };
+        Pattern.prototype.enable = function () {
+            this.enabled = true;
+        };
         Pattern.prototype.disable_handling = function () {
             this.match = null;
         };
@@ -119,6 +126,9 @@ var AnnotateMD;
         };
         Pattern.prototype.matches = function (node, depth) {
             // a few quick short-circuit cases for when that's applicable
+            if (!this.enabled) {
+                return PatternMatchResponse.Unapplied;
+            }
             if (this.absolute_depth >= 0 && this.absolute_depth < depth) {
                 return PatternMatchResponse.Unapplied;
             }

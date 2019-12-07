@@ -45,9 +45,13 @@ var method_pattern = new AnnotateMD.SequencePattern([
         })(submatch);
     }
 });
+var example_pattern = new AnnotateMD.PatternTest(new AnnotateMD.TagPattern(["h1", "h2"]), function (e) { return (e.textContent === "Examples"); }, {
+    transform: function () { return method_pattern.disable(); }
+});
 var annotator = new AnnotateMD.Annotator([
     description_pattern,
     subsection_pattern,
+    example_pattern,
     method_pattern
 ]);
 // Apply the annotations to the chosen root element
