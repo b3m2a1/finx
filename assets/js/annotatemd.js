@@ -95,7 +95,7 @@ var AnnotateMD;
      */
     var Pattern = /** @class */ (function () {
         function Pattern(matcher, _a) {
-            var _b = _a === void 0 ? {} : _a, _c = _b.priority, priority = _c === void 0 ? $DefaultPriority : _c, _d = _b.compounds, compounds = _d === void 0 ? true : _d, _e = _b.terminal, terminal = _e === void 0 ? false : _e, _f = _b.open_ended, open_ended = _f === void 0 ? true : _f, _g = _b.depth, depth = _g === void 0 ? $DefaultDepth : _g, _h = _b.absolute_depth, absolute_depth = _h === void 0 ? $DefaultAbsDepth : _h, _j = _b.manage_match, manage_match = _j === void 0 ? true : _j, _k = _b.transform, transform = _k === void 0 ? null : _k, _l = _b.applications, applications = _l === void 0 ? $DefaultApplications : _l;
+            var _b = _a === void 0 ? {} : _a, _c = _b.priority, priority = _c === void 0 ? $DefaultPriority : _c, _d = _b.compounds, compounds = _d === void 0 ? true : _d, _e = _b.terminal, terminal = _e === void 0 ? false : _e, _f = _b.open_ended, open_ended = _f === void 0 ? true : _f, _g = _b.depth, depth = _g === void 0 ? $DefaultDepth : _g, _h = _b.absolute_depth, absolute_depth = _h === void 0 ? $DefaultAbsDepth : _h, _j = _b.manage_match, manage_match = _j === void 0 ? true : _j, _k = _b.transform, transform = _k === void 0 ? null : _k, _l = _b.apply_immediately, apply_immediately = _l === void 0 ? false : _l, _m = _b.applications, applications = _m === void 0 ? $DefaultApplications : _m, _o = _b.enabled, enabled = _o === void 0 ? true : _o;
             this.matcher = matcher;
             this.priority = priority;
             this.compounds = compounds;
@@ -108,7 +108,8 @@ var AnnotateMD;
             this.applications = applications;
             this._cur_depth = -1;
             this._applied = 0;
-            this.enabled = true;
+            this.enabled = enabled;
+            this.apply_immediately = apply_immediately;
         }
         Pattern.prototype.disable = function () {
             this.enabled = false;
@@ -173,7 +174,7 @@ var AnnotateMD;
     var SimplePattern = /** @class */ (function (_super) {
         __extends(SimplePattern, _super);
         function SimplePattern(field_options, field_name, _a) {
-            var _b = _a === void 0 ? {} : _a, _c = _b.priority, priority = _c === void 0 ? $DefaultPriority : _c, _d = _b.compounds, compounds = _d === void 0 ? true : _d, _e = _b.terminal, terminal = _e === void 0 ? false : _e, _f = _b.open_ended, open_ended = _f === void 0 ? false : _f, _g = _b.depth, depth = _g === void 0 ? $DefaultDepth : _g, _h = _b.absolute_depth, absolute_depth = _h === void 0 ? $DefaultAbsDepth : _h, _j = _b.manage_match, manage_match = _j === void 0 ? true : _j, _k = _b.transform, transform = _k === void 0 ? null : _k, _l = _b.applications, applications = _l === void 0 ? $DefaultApplications : _l, _m = _b.exact, exact = _m === void 0 ? false : _m, _o = _b.all, all = _o === void 0 ? false : _o;
+            var _b = _a === void 0 ? {} : _a, _c = _b.priority, priority = _c === void 0 ? $DefaultPriority : _c, _d = _b.compounds, compounds = _d === void 0 ? true : _d, _e = _b.terminal, terminal = _e === void 0 ? false : _e, _f = _b.open_ended, open_ended = _f === void 0 ? false : _f, _g = _b.depth, depth = _g === void 0 ? $DefaultDepth : _g, _h = _b.absolute_depth, absolute_depth = _h === void 0 ? $DefaultAbsDepth : _h, _j = _b.manage_match, manage_match = _j === void 0 ? true : _j, _k = _b.transform, transform = _k === void 0 ? null : _k, _l = _b.apply_immediately, apply_immediately = _l === void 0 ? false : _l, _m = _b.applications, applications = _m === void 0 ? $DefaultApplications : _m, _o = _b.exact, exact = _o === void 0 ? false : _o, _p = _b.all, all = _p === void 0 ? false : _p;
             var _this = _super.call(this, function (el, match, depth) { return (SimplePattern.match_field(el, _this.field_name, _this.field_options, _this.exact, _this.all, match, depth)); }, {
                 priority: priority,
                 compounds: compounds,
@@ -183,6 +184,7 @@ var AnnotateMD;
                 absolute_depth: absolute_depth,
                 manage_match: manage_match,
                 transform: transform,
+                apply_immediately: apply_immediately,
                 applications: applications
             }) || this;
             _this.field_options = field_options;
@@ -237,7 +239,7 @@ var AnnotateMD;
     var TagPattern = /** @class */ (function (_super) {
         __extends(TagPattern, _super);
         function TagPattern(tags, _a) {
-            var _b = _a === void 0 ? {} : _a, _c = _b.priority, priority = _c === void 0 ? $DefaultPriority : _c, _d = _b.compounds, compounds = _d === void 0 ? true : _d, _e = _b.terminal, terminal = _e === void 0 ? false : _e, _f = _b.open_ended, open_ended = _f === void 0 ? false : _f, _g = _b.depth, depth = _g === void 0 ? $DefaultDepth : _g, _h = _b.absolute_depth, absolute_depth = _h === void 0 ? $DefaultAbsDepth : _h, _j = _b.manage_match, manage_match = _j === void 0 ? true : _j, _k = _b.transform, transform = _k === void 0 ? null : _k, _l = _b.applications, applications = _l === void 0 ? $DefaultApplications : _l, _m = _b.exact, exact = _m === void 0 ? true : _m, _o = _b.all, all = _o === void 0 ? false : _o;
+            var _b = _a === void 0 ? {} : _a, _c = _b.priority, priority = _c === void 0 ? $DefaultPriority : _c, _d = _b.compounds, compounds = _d === void 0 ? true : _d, _e = _b.terminal, terminal = _e === void 0 ? false : _e, _f = _b.open_ended, open_ended = _f === void 0 ? false : _f, _g = _b.depth, depth = _g === void 0 ? $DefaultDepth : _g, _h = _b.absolute_depth, absolute_depth = _h === void 0 ? $DefaultAbsDepth : _h, _j = _b.manage_match, manage_match = _j === void 0 ? true : _j, _k = _b.transform, transform = _k === void 0 ? null : _k, _l = _b.apply_immediately, apply_immediately = _l === void 0 ? false : _l, _m = _b.applications, applications = _m === void 0 ? $DefaultApplications : _m, _o = _b.exact, exact = _o === void 0 ? true : _o, _p = _b.all, all = _p === void 0 ? false : _p;
             return _super.call(this, tags.map(function (t) { return t.toUpperCase(); }), 'tagName', {
                 priority: priority,
                 compounds: compounds,
@@ -247,6 +249,7 @@ var AnnotateMD;
                 absolute_depth: absolute_depth,
                 manage_match: manage_match,
                 transform: transform,
+                apply_immediately: apply_immediately,
                 applications: applications,
                 exact: exact,
                 all: all
@@ -258,7 +261,7 @@ var AnnotateMD;
     var ClassPattern = /** @class */ (function (_super) {
         __extends(ClassPattern, _super);
         function ClassPattern(classes, _a) {
-            var _b = _a === void 0 ? {} : _a, _c = _b.priority, priority = _c === void 0 ? $DefaultPriority : _c, _d = _b.compounds, compounds = _d === void 0 ? true : _d, _e = _b.terminal, terminal = _e === void 0 ? false : _e, _f = _b.open_ended, open_ended = _f === void 0 ? false : _f, _g = _b.depth, depth = _g === void 0 ? $DefaultDepth : _g, _h = _b.absolute_depth, absolute_depth = _h === void 0 ? $DefaultAbsDepth : _h, _j = _b.manage_match, manage_match = _j === void 0 ? true : _j, _k = _b.transform, transform = _k === void 0 ? null : _k, _l = _b.applications, applications = _l === void 0 ? $DefaultApplications : _l, _m = _b.exact, exact = _m === void 0 ? false : _m, _o = _b.all, all = _o === void 0 ? true : _o;
+            var _b = _a === void 0 ? {} : _a, _c = _b.priority, priority = _c === void 0 ? $DefaultPriority : _c, _d = _b.compounds, compounds = _d === void 0 ? true : _d, _e = _b.terminal, terminal = _e === void 0 ? false : _e, _f = _b.open_ended, open_ended = _f === void 0 ? false : _f, _g = _b.depth, depth = _g === void 0 ? $DefaultDepth : _g, _h = _b.absolute_depth, absolute_depth = _h === void 0 ? $DefaultAbsDepth : _h, _j = _b.manage_match, manage_match = _j === void 0 ? true : _j, _k = _b.transform, transform = _k === void 0 ? null : _k, _l = _b.apply_immediately, apply_immediately = _l === void 0 ? false : _l, _m = _b.applications, applications = _m === void 0 ? $DefaultApplications : _m, _o = _b.exact, exact = _o === void 0 ? false : _o, _p = _b.all, all = _p === void 0 ? true : _p;
             return _super.call(this, classes, 'className', {
                 priority: priority,
                 compounds: compounds,
@@ -268,6 +271,7 @@ var AnnotateMD;
                 absolute_depth: absolute_depth,
                 manage_match: manage_match,
                 transform: transform,
+                apply_immediately: apply_immediately,
                 applications: applications,
                 exact: exact,
                 all: all
@@ -284,7 +288,7 @@ var AnnotateMD;
         __extends(SequencePattern, _super);
         function SequencePattern(patterns, repeats, _a) {
             if (repeats === void 0) { repeats = null; }
-            var _b = _a === void 0 ? {} : _a, _c = _b.priority, priority = _c === void 0 ? 1 : _c, _d = _b.compounds, compounds = _d === void 0 ? true : _d, _e = _b.terminal, terminal = _e === void 0 ? false : _e, _f = _b.open_ended, open_ended = _f === void 0 ? false : _f, _g = _b.depth, depth = _g === void 0 ? $DefaultDepth : _g, _h = _b.absolute_depth, absolute_depth = _h === void 0 ? $DefaultAbsDepth : _h, _j = _b.manage_match, manage_match = _j === void 0 ? true : _j, _k = _b.transform, transform = _k === void 0 ? null : _k, _l = _b.applications, applications = _l === void 0 ? $DefaultApplications : _l;
+            var _b = _a === void 0 ? {} : _a, _c = _b.priority, priority = _c === void 0 ? 1 : _c, _d = _b.compounds, compounds = _d === void 0 ? true : _d, _e = _b.terminal, terminal = _e === void 0 ? false : _e, _f = _b.open_ended, open_ended = _f === void 0 ? false : _f, _g = _b.depth, depth = _g === void 0 ? $DefaultDepth : _g, _h = _b.absolute_depth, absolute_depth = _h === void 0 ? $DefaultAbsDepth : _h, _j = _b.manage_match, manage_match = _j === void 0 ? true : _j, _k = _b.transform, transform = _k === void 0 ? null : _k, _l = _b.apply_immediately, apply_immediately = _l === void 0 ? false : _l, _m = _b.applications, applications = _m === void 0 ? $DefaultApplications : _m;
             var _this = _super.call(this, function (el, match, depth) { return _this.match_seq(el, match, depth); }, {
                 priority: priority,
                 compounds: compounds,
@@ -294,6 +298,7 @@ var AnnotateMD;
                 absolute_depth: absolute_depth,
                 manage_match: manage_match,
                 transform: transform,
+                apply_immediately: apply_immediately,
                 applications: applications
             }) || this;
             _this.patterns = patterns;
@@ -368,7 +373,7 @@ var AnnotateMD;
     var IgnoredPattern = /** @class */ (function (_super) {
         __extends(IgnoredPattern, _super);
         function IgnoredPattern(pattern, _a) {
-            var _b = _a === void 0 ? {} : _a, _c = _b.priority, priority = _c === void 0 ? 1 : _c, _d = _b.compounds, compounds = _d === void 0 ? true : _d, _e = _b.terminal, terminal = _e === void 0 ? true : _e, _f = _b.open_ended, open_ended = _f === void 0 ? false : _f, _g = _b.depth, depth = _g === void 0 ? $DefaultDepth : _g, _h = _b.absolute_depth, absolute_depth = _h === void 0 ? $DefaultAbsDepth : _h, _j = _b.manage_match, manage_match = _j === void 0 ? true : _j, _k = _b.transform, transform = _k === void 0 ? null : _k, _l = _b.applications, applications = _l === void 0 ? $DefaultApplications : _l;
+            var _b = _a === void 0 ? {} : _a, _c = _b.priority, priority = _c === void 0 ? 1 : _c, _d = _b.compounds, compounds = _d === void 0 ? true : _d, _e = _b.terminal, terminal = _e === void 0 ? true : _e, _f = _b.open_ended, open_ended = _f === void 0 ? false : _f, _g = _b.depth, depth = _g === void 0 ? $DefaultDepth : _g, _h = _b.absolute_depth, absolute_depth = _h === void 0 ? $DefaultAbsDepth : _h, _j = _b.manage_match, manage_match = _j === void 0 ? true : _j, _k = _b.transform, transform = _k === void 0 ? null : _k, _l = _b.apply_immediately, apply_immediately = _l === void 0 ? false : _l, _m = _b.applications, applications = _m === void 0 ? $DefaultApplications : _m;
             var _this = _super.call(this, function (el, match, depth) { return (IgnoredPattern.match_ignore(el, _this.pattern)); }, {
                 priority: priority,
                 compounds: compounds,
@@ -378,6 +383,7 @@ var AnnotateMD;
                 absolute_depth: absolute_depth,
                 manage_match: manage_match,
                 transform: transform,
+                apply_immediately: apply_immediately,
                 applications: applications
             }) || this;
             _this.pattern = pattern;
@@ -404,7 +410,7 @@ var AnnotateMD;
     var AllPattern = /** @class */ (function (_super) {
         __extends(AllPattern, _super);
         function AllPattern(patterns, _a) {
-            var _b = _a === void 0 ? {} : _a, _c = _b.priority, priority = _c === void 0 ? 1 : _c, _d = _b.compounds, compounds = _d === void 0 ? true : _d, _e = _b.terminal, terminal = _e === void 0 ? false : _e, _f = _b.open_ended, open_ended = _f === void 0 ? false : _f, _g = _b.depth, depth = _g === void 0 ? $DefaultDepth : _g, _h = _b.absolute_depth, absolute_depth = _h === void 0 ? $DefaultAbsDepth : _h, _j = _b.manage_match, manage_match = _j === void 0 ? true : _j, _k = _b.transform, transform = _k === void 0 ? null : _k, _l = _b.applications, applications = _l === void 0 ? $DefaultApplications : _l;
+            var _b = _a === void 0 ? {} : _a, _c = _b.priority, priority = _c === void 0 ? 1 : _c, _d = _b.compounds, compounds = _d === void 0 ? true : _d, _e = _b.terminal, terminal = _e === void 0 ? false : _e, _f = _b.open_ended, open_ended = _f === void 0 ? false : _f, _g = _b.depth, depth = _g === void 0 ? $DefaultDepth : _g, _h = _b.absolute_depth, absolute_depth = _h === void 0 ? $DefaultAbsDepth : _h, _j = _b.manage_match, manage_match = _j === void 0 ? true : _j, _k = _b.transform, transform = _k === void 0 ? null : _k, _l = _b.apply_immediately, apply_immediately = _l === void 0 ? false : _l, _m = _b.applications, applications = _m === void 0 ? $DefaultApplications : _m;
             var _this = _super.call(this, function (el, match, depth) { return _this.match_all(el, match, depth); }, {
                 priority: priority,
                 compounds: compounds,
@@ -414,6 +420,7 @@ var AnnotateMD;
                 absolute_depth: absolute_depth,
                 manage_match: manage_match,
                 transform: transform,
+                apply_immediately: apply_immediately,
                 applications: applications
             }) || this;
             _this.patterns = patterns;
@@ -445,7 +452,7 @@ var AnnotateMD;
     var AnyPattern = /** @class */ (function (_super) {
         __extends(AnyPattern, _super);
         function AnyPattern(patterns, _a) {
-            var _b = _a === void 0 ? {} : _a, _c = _b.priority, priority = _c === void 0 ? 1 : _c, _d = _b.compounds, compounds = _d === void 0 ? true : _d, _e = _b.terminal, terminal = _e === void 0 ? false : _e, _f = _b.open_ended, open_ended = _f === void 0 ? false : _f, _g = _b.transform, transform = _g === void 0 ? null : _g, _h = _b.applications, applications = _h === void 0 ? $DefaultApplications : _h;
+            var _b = _a === void 0 ? {} : _a, _c = _b.priority, priority = _c === void 0 ? 1 : _c, _d = _b.compounds, compounds = _d === void 0 ? true : _d, _e = _b.terminal, terminal = _e === void 0 ? false : _e, _f = _b.open_ended, open_ended = _f === void 0 ? false : _f, _g = _b.transform, transform = _g === void 0 ? null : _g, _h = _b.apply_immediately, apply_immediately = _h === void 0 ? false : _h, _j = _b.applications, applications = _j === void 0 ? $DefaultApplications : _j;
             var _this = _super.call(this, function (el, match, depth) { return _this.match_any(el, match, depth); }, {
                 priority: priority,
                 compounds: compounds,
@@ -453,6 +460,7 @@ var AnnotateMD;
                 open_ended: open_ended,
                 manage_match: false,
                 transform: transform,
+                apply_immediately: apply_immediately,
                 applications: applications
             }) || this;
             _this.patterns = patterns;
@@ -488,7 +496,7 @@ var AnnotateMD;
     var ExceptPattern = /** @class */ (function (_super) {
         __extends(ExceptPattern, _super);
         function ExceptPattern(pattern, _a) {
-            var _b = _a === void 0 ? {} : _a, _c = _b.priority, priority = _c === void 0 ? 1 : _c, _d = _b.compounds, compounds = _d === void 0 ? true : _d, _e = _b.terminal, terminal = _e === void 0 ? false : _e, _f = _b.open_ended, open_ended = _f === void 0 ? false : _f, _g = _b.transform, transform = _g === void 0 ? null : _g, _h = _b.applications, applications = _h === void 0 ? $DefaultApplications : _h;
+            var _b = _a === void 0 ? {} : _a, _c = _b.priority, priority = _c === void 0 ? 1 : _c, _d = _b.compounds, compounds = _d === void 0 ? true : _d, _e = _b.terminal, terminal = _e === void 0 ? false : _e, _f = _b.open_ended, open_ended = _f === void 0 ? false : _f, _g = _b.transform, transform = _g === void 0 ? null : _g, _h = _b.apply_immediately, apply_immediately = _h === void 0 ? false : _h, _j = _b.applications, applications = _j === void 0 ? $DefaultApplications : _j;
             var _this = _super.call(this, function (el, match, depth) { return _this.match_execpt(el, _this.musnt_match, _this.must_match, match, depth); }, {
                 priority: priority,
                 compounds: compounds,
@@ -496,6 +504,7 @@ var AnnotateMD;
                 open_ended: open_ended,
                 manage_match: false,
                 transform: transform,
+                apply_immediately: apply_immediately,
                 applications: applications
             }) || this;
             _this.musnt_match = ((pattern instanceof Pattern) ? pattern : pattern[0]);
@@ -521,7 +530,7 @@ var AnnotateMD;
     var PatternTest = /** @class */ (function (_super) {
         __extends(PatternTest, _super);
         function PatternTest(pattern, test, _a) {
-            var _b = _a === void 0 ? {} : _a, _c = _b.priority, priority = _c === void 0 ? 1 : _c, _d = _b.compounds, compounds = _d === void 0 ? true : _d, _e = _b.terminal, terminal = _e === void 0 ? false : _e, _f = _b.open_ended, open_ended = _f === void 0 ? false : _f, _g = _b.manage_match, manage_match = _g === void 0 ? true : _g, _h = _b.transform, transform = _h === void 0 ? null : _h, _j = _b.applications, applications = _j === void 0 ? $DefaultApplications : _j;
+            var _b = _a === void 0 ? {} : _a, _c = _b.priority, priority = _c === void 0 ? 1 : _c, _d = _b.compounds, compounds = _d === void 0 ? true : _d, _e = _b.terminal, terminal = _e === void 0 ? false : _e, _f = _b.open_ended, open_ended = _f === void 0 ? false : _f, _g = _b.manage_match, manage_match = _g === void 0 ? true : _g, _h = _b.transform, transform = _h === void 0 ? null : _h, _j = _b.apply_immediately, apply_immediately = _j === void 0 ? false : _j, _k = _b.applications, applications = _k === void 0 ? $DefaultApplications : _k;
             var _this = _super.call(this, function (el, match, depth) { return _this.match_test(el, _this.must_match, _this.test, match, depth); }, {
                 priority: priority,
                 compounds: compounds,
@@ -529,6 +538,7 @@ var AnnotateMD;
                 open_ended: open_ended,
                 manage_match: manage_match,
                 transform: transform,
+                apply_immediately: apply_immediately,
                 applications: applications
             }) || this;
             _this.must_match = ((pattern instanceof Pattern) ? pattern : pattern[1]);
@@ -588,7 +598,13 @@ var AnnotateMD;
                     //  --> this should be the default case unless there's some compelling reason why it can't
                     //  work like that
                     // then we should apply it
-                    matches.add(match);
+                    if (pat.apply_immediately) {
+                        console.log(["....?", match]);
+                        match.apply();
+                    }
+                    else {
+                        matches.add(match);
+                    }
                     if (!pat.compounds) {
                         // gotta drop all following state, kill any following matches, etc.
                         var match_list = Array.from(matches.values());

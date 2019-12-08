@@ -14,11 +14,12 @@ var description_pattern = new AnnotateMD.SequencePattern([
 var subsection_pattern = new AnnotateMD.SequencePattern([
     new AnnotateMD.TagPattern(["h3"]),
     new AnnotateMD.ExceptPattern(new AnnotateMD.TagPattern(["h1", "h2", "h3", "h4", "h5"])),
-], [[1, 1], [1, -1]], {
+], [[1, 1], [0, -1]], {
     transform: AnnotateMD.Annotations.SectionMaker({
         section_class: "docs-section",
         header_class: "docs-section-header",
-        body_class: "docs-section-body"
+        body_class: "docs-section-body",
+        remove_empty: true
     })
 });
 var method_pattern = new AnnotateMD.SequencePattern([
@@ -45,8 +46,9 @@ var method_pattern = new AnnotateMD.SequencePattern([
         })(submatch);
     }
 });
-var example_pattern = new AnnotateMD.PatternTest(new AnnotateMD.TagPattern(["h1", "h2"]), function (e) { return (e.textContent === "Examples"); }, {
-    transform: function () { return method_pattern.disable(); }
+var example_pattern = new AnnotateMD.PatternTest(new AnnotateMD.TagPattern(["h2", "h3", "h4"]), function (e) { return e.textContent === "Examples"; }, {
+    transform: function () { return method_pattern.disable(); },
+    apply_immediately: true
 });
 var annotator = new AnnotateMD.Annotator([
     description_pattern,
