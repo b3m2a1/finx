@@ -521,21 +521,20 @@ var AnnotateMD;
     var PatternTest = /** @class */ (function (_super) {
         __extends(PatternTest, _super);
         function PatternTest(pattern, test, _a) {
-            var _b = _a === void 0 ? {} : _a, _c = _b.priority, priority = _c === void 0 ? 1 : _c, _d = _b.compounds, compounds = _d === void 0 ? true : _d, _e = _b.terminal, terminal = _e === void 0 ? false : _e, _f = _b.open_ended, open_ended = _f === void 0 ? false : _f, _g = _b.transform, transform = _g === void 0 ? null : _g, _h = _b.applications, applications = _h === void 0 ? $DefaultApplications : _h;
+            var _b = _a === void 0 ? {} : _a, _c = _b.priority, priority = _c === void 0 ? 1 : _c, _d = _b.compounds, compounds = _d === void 0 ? true : _d, _e = _b.terminal, terminal = _e === void 0 ? false : _e, _f = _b.open_ended, open_ended = _f === void 0 ? false : _f, _g = _b.manage_match, manage_match = _g === void 0 ? true : _g, _h = _b.transform, transform = _h === void 0 ? null : _h, _j = _b.applications, applications = _j === void 0 ? $DefaultApplications : _j;
             var _this = _super.call(this, function (el, match, depth) { return _this.match_test(el, _this.must_match, _this.test, match, depth); }, {
                 priority: priority,
                 compounds: compounds,
                 terminal: terminal,
                 open_ended: open_ended,
-                manage_match: false,
+                manage_match: manage_match,
                 transform: transform,
                 applications: applications
             }) || this;
-            _this.must_match = ((pattern instanceof Pattern) ? null : pattern[1]);
+            _this.must_match = ((pattern instanceof Pattern) ? pattern : pattern[1]);
             if (_this.must_match instanceof Pattern) {
                 _this.must_match.disable_handling();
             }
-            ;
             _this.test = test;
             return _this;
         }
