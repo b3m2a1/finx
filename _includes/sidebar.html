@@ -2,7 +2,11 @@
 {% if sidebar_theme == nil %}
     {% assign sidebar_theme = "navbar-light text-light bg-secondary" %}
 {% endif %}
+{% if page.url == "/index.html" %}
+<nav class="sidebar.toggled {{sidebar_theme}}" id="sidebar">
+{% else %}
 <nav class="sidebar {{sidebar_theme}}" id="sidebar">
+{% endif %}
     {% if site.search_enabled != false %}
         {% include search.html %}
     {% endif %}
