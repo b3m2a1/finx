@@ -153,7 +153,7 @@ At the end, close off any open nodes (by walking the rest of the stack) and our 
     {%- assign url = page.url -%}
     {%- assign children = ""|split:"" -%}
 
-    {%- if max_depth == nil or depth <= max_depth -%}
+    {%- if max_depth == nil or depth < max_depth -%}
         {%-comment-%}<pre> PreLoop |
                 stack_size: {{node_stack[1]}}
                 {{url}}
@@ -162,8 +162,9 @@ At the end, close off any open nodes (by walking the rest of the stack) and our 
         </pre>{%-endcomment-%}
 
         {%- unless prev_directory == nil -%}
-
-            {%- if url contains prev_directory -%}
+            {%- assign test_url = url|url_encode|replace:"+","%20"|replace:"%2F","/" -%}
+            {%- assign test_dir = prev_directory|url_encode|replace:"+","%20"|replace:"%2F","/" -%}
+            {%- if test_url contains test_dir -%}
                 {%- assign child_page = true -%}
             {%- else -%}
                 {%- assign child_page = false -%}
@@ -227,12 +228,14 @@ At the end, close off any open nodes (by walking the rest of the stack) and our 
                     {%- endif -%}
                 {%- endfor -%}
 
-                {%-comment-%}<pre> PrePop | pops: {{need_to_close}}
+                {%-comment-%}
+                <pre> PrePop | pops: {{need_to_close}}
                         stack_size: {{node_stack[1]}}
                         {{url}}
                         {{prev_url}}
                         {{parent_url}}
-                </pre>{%-endcomment-%}
+                    </pre>
+                {%-endcomment-%}
 
                 {%- for i in (1..need_to_close) -%}
                     {%- comment -%}
