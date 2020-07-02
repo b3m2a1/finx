@@ -119,12 +119,76 @@ At the end, close off any open nodes (by walking the rest of the stack) and our 
 {%- assign parent_url = parent -%}
 {%- assign parent_children = ""|split:"" -%}
 
-{%- assign page_set = page_set | sort:"url" -%}
+{%- comment -%}
+    We allow for specifying an ordering for page.
+    This will perform very poorly if we've got too many pages,
+      so we also first check to see if any pages have an explicit ordering before applying this sort
+{%- endcomment -%}
+{%- assign custom_sort = false -%}
+{%- assign sorting_urls = ""|split:"" -%}
+{%- for p in page_set -%}
+  {%- unless p.sidebar_order == nil -%}
+    {%- assign custom_sort = true -%}
+    {%- assign sidebar_order = p.sidebar_order|Z -%}
+  {%- else -%}
+    {%- assign sidebar_order = "Z" -%}
+  {%- endunless -%}
+  {%- assign trailing_char=url|slice:-1 -%}
+  {%- if trailing_char == "/" -%}
+    {%- assign base_url = p.url -%}
+    {%- assign sorting_urls = base_url -%}
+  {%- else -%}
+    {%- assign url_chunks = p.url|split:"/" -%}
+    {%- assign end_bound = url_chunks|size|minus:1 -%}
+    {%- assign base_url = url_chunks|slice:0,end_bound|join:"/" -%}
+    {%- assign end_url = url_chunks|slice:-1 -%}
+    {%- assign sorting_url = base_url|append:"/"|append:sidebar_order|append:end_url -%}
+    {%- assign sorting_url = sorting_url|append:"`"|append:p.url -%}
+    {%- assign sorting_urls = sorting_urls|push:sorting_url -%}
+  {%- endif -%}
+{%- endfor -%}
+
+{%- assign page_set = page_set|sort:"url" -%}
+{%- if custom_sort -%}
+    {%- comment -%}
+        We need to build a second page_set array and push pages into the first based on the ordering
+        or sort_urls
+        To minimize the amount of looping, assuming the standard sort and the custom sort basically agree,
+        we'll keep incrementing where we start our looping from to decrease build time
+        Unfortunately
+    {%- endcomment -%}
+    {%- assign sorting_urls = sorting_urls|sort -%}
+      <pre>{% for p in sorting_urls %}{{p}}
+  {% endfor %}</pre>
+    {%- assign new_page_set = ""|split:"" -%}
+    {%- for sorting_url in sorting_urls -%}
+        {%- assign test_url = sorting_url|split:"`"|last -%}
+        {%- for new_page in page_set %}
+            {%- assign page_test_url = new_page.url -%}
+            {%- if page_test_url == test_url -%}
+                {%- assign url_found = true -%}
+                {%- assign new_page_set = new_page_set|push:new_page -%}
+                {%- break -%}
+            {%- endif -%}
+        {%- endfor -%}
+    {%- endfor -%}
+    {%- assign page_set = new_page_set -%}  <pre>{% for p in page_set %}{{p.url}}
+  {% endfor %}</pre>
+
+{%- endif -%}
+
 {%- for page in page_set -%}
+    {%- if page.sidebar_hidden -%}
+      {%- continue -%}
+    {%- endif -%}
+
     {%- comment -%}
         We first determine the parameters for the given page
     {%- endcomment -%}
 
+    {%- comment -%}
+        Determine the URL components for making the links/determining parentage
+    {%- endcomment -%}
     {%- assign url=page.url -%}
     {%- assign leading_char=url|slice:0 -%}
     {%- if leading_char == "/" -%}
@@ -142,7 +206,18 @@ At the end, close off any open nodes (by walking the rest of the stack) and our 
     {%- if d_last contains "." -%}
         {%- assign depth = depth | minus:1 -%}
     {%- endif -%}
-    {%- assign name = page.path | split:"/" | last | split:"." | first -%}
+
+    {%- comment -%}
+        Allow users to put a page name in the front matter
+    {%- endcomment -%}
+    {%- assign name = page.sidebar_name -%}
+    {%- if name == nil -%}
+      {%- assign name = page.path | split:"/" | last | split:"." | first -%}
+    {%- endif -%}
+
+    {%- comment -%}
+        Decide what the parentage of the link is
+    {%- endcomment -%}
     {%- assign directory = "" -%}
     {%- assign d_lim = depth -%}
     {%- for d in d_split limit:d_lim) -%}
@@ -153,6 +228,9 @@ At the end, close off any open nodes (by walking the rest of the stack) and our 
     {%- assign url = page.url -%}
     {%- assign children = ""|split:"" -%}
 
+    {%- comment -%}
+        Figure out if we need to be closing the current node or opening a new one
+    {%- endcomment -%}
     {%- if max_depth == nil or depth < max_depth -%}
         {%-comment-%}<pre> PreLoop |
                 stack_size: {{node_stack[1]}}
