@@ -1,8 +1,13 @@
-{%- unless page.url == "/" or page.breadcrumbs_enabled == false -%}
+{%- assign bread_settings = page.breadcrumbs -%}
+{%- unless page.url == "/" or bread_settings.enabled == false -%}
 {%- assign d_split = page.url|split:"/" -%}
 {%- assign b_path = "" -%}
 {%- assign p_depth = d_split|size|minus:2 -%}
-{%- if p_depth > 1 -%}
+{%- assign p_min_depth = bread_settings.min_depth -%}
+{%- if p_min_depth == nil -%}
+    {%- assign p_min_depth = 1 -%}
+{%- endif -%}
+{%- if p_depth > p_min_depth -%}
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb {{site.breadcrumb_theme}}">
         {%- comment -%}
@@ -21,15 +26,16 @@
         {%- comment -%}
             Next we'll figure out how many links we want to display as our crumb (defaults to 1)
         {%- endcomment -%}
-        {%- assign breadcrumb_depth = page.breadcrumb_num_links -%}
+        {%- assign breadcrumb_depth = bread_settings.num_links -%}
         {%- if breadcrumb_depth == nil -%}
             {%- assign breadcrumb_depth = 1 -%}
         {%- endif -%}
         {%- assign b_crumb_do_link = p_depth|minus:breadcrumb_depth -%}
-        {%- if all_page_urls == nil -%}
-            {%- assign all_page_urls = site.html_pages|map:"url" -%}
-        {%- endif -%}
-        {%- assign page_urls = all_page_urls -%}
+        {%- comment -%}
+            We pass these as an include because they're shared across chunks and the
+            performance gain is surprisingly large...
+        {%- endcomment -%}
+        {%- assign page_urls = all_page_urls %}
         {%- for n in (1..p_depth) -%}
             {%- assign b_path_el = d_split[n] -%}
             {%- assign b_path = b_path|append:"/"|append:b_path_el -%}
