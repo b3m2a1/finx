@@ -13,3 +13,5 @@ gem "jekyll-feed", "~> 0.12.1"
 gem "jekyll-optional-front-matter", "~> 0.3.2"
 
 gem "jekyll-include-cached", "~> 0.1.0"
+
+gem "jekyll-seo-tag"
