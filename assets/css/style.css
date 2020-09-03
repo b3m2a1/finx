@@ -51,7 +51,6 @@ blockquote {
   border-left: 3px solid #ccc;
 }
 
-
 /*
     SIDEBAR
 */
@@ -279,6 +278,37 @@ pre {
 
 pre.highlight {
     background: whitesmoke;
+}
+
+.in-out-block {
+    border: solid 1px rgba(200, 200, 200, .1);
+    border-radius: 2px;
+    margin-bottom: 16px;
+    background: whitesmoke;
+}
+.in-out-block pre {
+    margin-bottom: 0;
+}
+.out-block {
+    padding: 10px 10px 10px 10px;
+    border: solid 1px rgba(100, 100, 100, .1);
+    border-top: none;
+    border-radius: 2px;
+    background: white;
+}
+.out-block pre {
+    padding: 0;
+    background: none;
+    margin: 0;
+    border: none;
+}
+.out-block .in-out-block pre {
+    padding: 10px;
+    background: whitesmoke;
+}
+.out-block .in-out-block .out-block pre {
+    padding: 0px;
+    background: none;
 }
 
 /*
