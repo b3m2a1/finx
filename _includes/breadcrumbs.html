@@ -60,6 +60,7 @@
                 {%- endcomment -%}
 
                 {%- assign b_path_url = b_path|append:"/" -%}
+                {%- if check_urls -%}
                 {%- unless page_urls contains b_path_url -%}
 
                     {%- assign b_path_url = b_path|append:".html" -%}
@@ -73,6 +74,7 @@
                     {%- endunless -%}
 
                 {%- endunless -%}
+                {%- endif -%}
             {%- else -%}
                 {%- assign b_path_url = nil -%}
             {%- endif -%}
