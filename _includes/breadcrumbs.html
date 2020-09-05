@@ -7,11 +7,19 @@
 {%- if p_min_depth == nil -%}
     {%- assign p_min_depth = 1 -%}
 {%- endif -%}
+{%- comment -%}
+    Checking that urls are valid is expensive, so we'll allow it to be turned off
+{%- endcomment -%}
+{%- unless bread_settings.check_urls == false -%}
+{%- assign check_urls = true -%}
+{%- else -%}
+{%- assign check_urls = false -%}
+{%- endunless %}
 {%- if p_depth > p_min_depth -%}
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb {{site.breadcrumb_theme}}">
         {%- comment -%}
-            We'll do a slightly funny thing where we only the _last_ n breadcrumbs to legit be links
+            We'll do a slightly funny thing where we only have the _last_ n breadcrumbs to legit be links
         {%- endcomment -%}
         {%- assign d_split = page.url|split:"/" -%}
         {%- assign b_path = "" -%}
