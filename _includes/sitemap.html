@@ -15,7 +15,7 @@
 {%- endif -%}
 
 <div class="sitemap">
-    {%- if site.sitemap_roots -%}
+    {%- unless site.sitemap_roots == nil -%}
         {%- for root in site.sitemap_roots -%}
             {%- if root.listing -%}
                 <ul class="{{list_class}}">
@@ -36,6 +36,7 @@
             {%- endif -%}
         {%- endfor -%}
     {%- else -%}
+        {%- assign max_depth = nil %}
         {%- include path_tree.html max_depth = sitemap_depth -%}
     {%- endif -%}
 </div>
