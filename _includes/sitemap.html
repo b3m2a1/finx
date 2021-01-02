@@ -38,5 +38,5 @@
     {%- else -%}
         {%- assign max_depth = nil %}
         {%- include path_tree.html max_depth = sitemap_depth -%}
-    {%- endif -%}
+    {%- endunless -%}
 </div>
