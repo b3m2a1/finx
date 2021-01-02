@@ -23,6 +23,7 @@ sitemap_roots:
   - References
   - Documentation
 sitemap_depth: 2
+icon: assets/favicon.png
 links:
   - url: about.html
     title: About
