@@ -36,6 +36,6 @@
             {%- endif -%}
         {%- endfor -%}
     {%- else -%}
-        {%- include path_tree.html -%}
+        {%- include path_tree.html max_depth = sitemap_depth -%}
     {%- endif -%}
 </div>
