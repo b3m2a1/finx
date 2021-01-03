@@ -95,10 +95,11 @@ At the end, close off any open nodes (by walking the rest of the stack) and our 
     {%- assign end_bound = parent|size -%}
     {%- assign parent = parent | slice:1,end_bound -%}
 {%- endif -%}
+
 {%- assign trailing_char=parent|slice:-1 -%}
 {%- if trailing_char == "/" -%}
     {%- assign end_bound = parent|size|minus:1 -%}
-    {%- assign parent = parent | slice:0,end_bound -%}
+    {%- assign parent = parent|slice:0,end_bound -%}
 {%- endif -%}
 
 {%- assign d_split = parent | split:"/" -%}
@@ -118,6 +119,8 @@ At the end, close off any open nodes (by walking the rest of the stack) and our 
 {%- endif -%}
 {%- assign parent_url = parent -%}
 {%- assign parent_children = ""|split:"" -%}
+
+
 
 {%- comment -%}
     We allow for specifying an ordering for page.
@@ -158,8 +161,8 @@ At the end, close off any open nodes (by walking the rest of the stack) and our 
         Unfortunately
     {%- endcomment -%}
     {%- assign sorting_urls = sorting_urls|sort -%}
-      <pre>{% for p in sorting_urls %}{{p}}
-  {% endfor %}</pre>
+      {%comment%}<pre>{% for p in sorting_urls %}{{p}}
+  {% endfor %}</pre>{%endcomment%}
     {%- assign new_page_set = ""|split:"" -%}
     {%- for sorting_url in sorting_urls -%}
         {%- assign test_url = sorting_url|split:"`"|last -%}
@@ -172,8 +175,8 @@ At the end, close off any open nodes (by walking the rest of the stack) and our 
             {%- endif -%}
         {%- endfor -%}
     {%- endfor -%}
-    {%- assign page_set = new_page_set -%}  <pre>{% for p in page_set %}{{p.url}}
-  {% endfor %}</pre>
+    {%- assign page_set = new_page_set -%}  {%comment%}<pre>{% for p in page_set %}{{p.url}}
+  {% endfor %}</pre>{%endcomment%}
 
 {%- endif -%}
 
@@ -232,12 +235,13 @@ At the end, close off any open nodes (by walking the rest of the stack) and our 
         Figure out if we need to be closing the current node or opening a new one
     {%- endcomment -%}
     {%- if max_depth == nil or depth < max_depth -%}
-        {%-comment-%}<pre> PreLoop |
-                stack_size: {{node_stack[1]}}
-                {{url}}
-                {{prev_url}}
-                {{parent_url}}
-        </pre>{%-endcomment-%}
+        {%comment%}<pre>
+PreLoop |
+    stack_size: {{node_stack[1]}}
+    {{url}}
+    {{prev_url}}
+    {{parent_url}}
+        </pre>{%endcomment%}
 
         {%- unless prev_directory == nil -%}
             {%- assign test_url = url|url_encode|replace:"+","%20"|replace:"%2F","/" -%}
@@ -273,10 +277,13 @@ At the end, close off any open nodes (by walking the rest of the stack) and our 
                         {%- assign node = node|push:prev_url -%}
                         {%- assign node = node|push:prev_children -%}
                         {%- assign parent_children = parent_children|push:node -%}
-                        {%-comment-%}<pre> PushedChild | parent: {{parent_url}} children: {{parent_children | size }}
-                                depth: {{prev_depth}}
-                                url: {{prev_url}}
-                        </pre>{%-endcomment-%}
+                        {%comment%}<pre>
+PushedChild |
+    parent: {{parent_url}}
+    children: {{parent_children | size }}
+    depth: {{prev_depth}}
+    url: {{prev_url}}
+                        </pre>{%endcomment%}
                     {%- endif -%}
                 {%- endif -%}
 
@@ -306,20 +313,19 @@ At the end, close off any open nodes (by walking the rest of the stack) and our 
                     {%- endif -%}
                 {%- endfor -%}
 
-                {%-comment-%}
-                <pre> PrePop | pops: {{need_to_close}}
-                        stack_size: {{node_stack[1]}}
-                        {{url}}
-                        {{prev_url}}
-                        {{parent_url}}
-                    </pre>
-                {%-endcomment-%}
+                {%comment%}<pre>
+PrePop | pops: {{need_to_close}}
+    stack_size: {{node_stack[1]}}
+    {{url}}
+    {{prev_url}}
+    {{parent_url}}
+                </pre>{%endcomment%}
 
                 {%- for i in (1..need_to_close) -%}
                     {%- comment -%}
                         To close a node, we stick the current node into the parent_children
-                        Then we pop a node off the node_stack, set all of the parent_* values to the node values and
-                        then assign all of the prev_* names to the parent_* names
+                        Then we pop a node off the node_stack, assign all of the prev_* names to the parent_* names,
+                        then set all of the parent_* values to the node values
                     {%- endcomment -%}
 
                     {%- if prev_url != parent_url -%}
@@ -337,10 +343,13 @@ At the end, close off any open nodes (by walking the rest of the stack) and our 
                             {%- assign node = node|push:prev_url -%}
                             {%- assign node = node|push:prev_children -%}
                             {%- assign parent_children = parent_children|push:node -%}
-                            {%-comment-%}<pre> PushedChild | parent: {{parent_url}} children: {{parent_children | size }}
-                                    depth: {{prev_depth}}
-                                    url: {{prev_url}}
-                            </pre>{%-endcomment-%}
+                            {%comment%}<pre>
+PushedChild |
+    parent: {{parent_url}}
+    children: {{parent_children | size }}
+    depth: {{prev_depth}}
+    url: {{prev_url}}
+                            </pre>{%endcomment%}
                         {%- endif -%}
                     {%- endif -%}
 
@@ -351,14 +360,17 @@ At the end, close off any open nodes (by walking the rest of the stack) and our 
                     {%- assign prev_url = parent_url -%}
                     {%- assign prev_children = parent_children -%}
 
-                    {%- assign node = node_stack[0] -%}
-                    {%- assign node_stack = node_stack[2] -%}
-                    {%- assign parent_depth = node[0] -%}
-                    {%- assign parent_page = node[1] -%}
-                    {%- assign parent_name = node[2] -%}
-                    {%- assign parent_directory = node[3] -%}
-                    {%- assign parent_url = node[4] -%}
-                    {%- assign parent_children = node[5] -%}
+                    {%- if node_stack[1] > 0 -%}
+                        {%- assign node = node_stack[0] -%}
+                        {%comment%}<pre> NodeStack Size | {{node_stack[1]}} </pre>{%endcomment%}
+                        {%- assign node_stack = node_stack[2] -%}
+                        {%- assign parent_depth = node[0] -%}
+                        {%- assign parent_page = node[1] -%}
+                        {%- assign parent_name = node[2] -%}
+                        {%- assign parent_directory = node[3] -%}
+                        {%- assign parent_url = node[4] -%}
+                        {%- assign parent_children = node[5] -%}
+                    {%- endif -%}
                 {%- endfor -%}
 
                 {%- if prev_url != parent_url -%}
@@ -376,10 +388,13 @@ At the end, close off any open nodes (by walking the rest of the stack) and our 
                         {%- assign node = node|push:prev_url -%}
                         {%- assign node = node|push:prev_children -%}
                         {%- assign parent_children = parent_children|push:node -%}
-                        {%-comment-%}<pre> PushedChild | parent: {{parent_url}} children: {{parent_children | size }}
-                                depth: {{prev_depth}}
-                                url: {{prev_url}}
-                        </pre>{%-endcomment-%}
+                        {%comment%}<pre>
+PushedChild |
+    parent: {{parent_url}}
+    children: {{parent_children | size }}
+    depth: {{prev_depth}}
+    url: {{prev_url}}
+                        </pre>{%endcomment%}
                     {%- endif -%}
                 {%- endif -%}
 
@@ -390,12 +405,13 @@ At the end, close off any open nodes (by walking the rest of the stack) and our 
                 {%- assign prev_url = parent_url -%}
                 {%- assign prev_children = parent_children -%}
 
-            {%-comment-%}<pre> PostPop |
-                    stack_size: {{node_stack[1]}}
-                    {{url}}
-                    {{prev_url}}
-                    {{parent_url}}
-            </pre>{%-endcomment-%}
+            {%comment%}<pre>
+PostPop |
+    stack_size: {{node_stack[1]}}
+    {{url}}
+    {{prev_url}}
+    {{parent_url}}
+            </pre>{%endcomment%}
 
             {%- endif -%}
 
@@ -412,12 +428,13 @@ At the end, close off any open nodes (by walking the rest of the stack) and our 
 
                 {%- assign bound_high = depth|minus:1 -%}
                 {%- assign bound_low = prev_depth -%}
-                {%-comment-%}<pre> PreDive | from: {{ bound_low }} to: {{ bound_high }}
-                        stack_size: {{node_stack[1]}}
-                        {{url}}
-                        {{prev_url}}
-                        {{parent_url}}
-                </pre>{%-endcomment-%}
+                {%comment%}<pre>
+PreDive | from: {{ bound_low }} to: {{ bound_high }}
+    stack_size: {{node_stack[1]}}
+    {{url}}
+    {{prev_url}}
+    {{parent_url}}
+                </pre>{%endcomment%}
 
                 {%- if prev_url contains "." -%}
                     {%- assign step_path = prev_directory -%}
@@ -438,11 +455,12 @@ At the end, close off any open nodes (by walking the rest of the stack) and our 
                         {%- assign parent_node = parent_node|push:parent_directory -%}
                         {%- assign parent_node = parent_node|push:parent_url -%}
                         {%- assign parent_node = parent_node|push:parent_children -%}
-                        {%-comment-%}<pre> PushingParent |
-                                depth: {{parent_depth}}
-                                url: {{parent_url}}
-                                children: {{parent_children | size}}
-                        </pre>{%-endcomment-%}
+                        {%comment%}<pre>
+PushingParent |
+    depth: {{parent_depth}}
+    url: {{parent_url}}
+    children: {{parent_children | size}}
+                        </pre>{%endcomment%}
 
                         {%- assign new_stack = ""|split:"" -%}
                         {%- assign new_stack = new_stack|push:parent_node -%}
@@ -492,12 +510,13 @@ At the end, close off any open nodes (by walking the rest of the stack) and our 
 
                 {%- endfor -%}
 
-                {%-comment-%}<pre> PostDive |
-                        stack_size: {{node_stack[1]}}
-                        {{url}}
-                        {{prev_url}}
-                        {{parent_url}}
-                </pre>{%-endcomment-%}
+                {%comment%}<pre>
+PostDive |
+    stack_size: {{node_stack[1]}}
+    {{url}}
+    {{prev_url}}
+    {{parent_url}}
+                </pre>{%endcomment%}
 
                 {%- assign parent_node = ""|split:"" -%}
                 {%- assign parent_node = parent_node|push:parent_depth -%}
@@ -506,11 +525,12 @@ At the end, close off any open nodes (by walking the rest of the stack) and our 
                 {%- assign parent_node = parent_node|push:parent_directory -%}
                 {%- assign parent_node = parent_node|push:parent_url -%}
                 {%- assign parent_node = parent_node|push:parent_children -%}
-                {%-comment-%}<pre> PushingParent |
-                        depth: {{parent_depth}}
-                        url: {{parent_url}}
-                        children: {{parent_children | size}}
-                </pre>{%-endcomment-%}
+                {%comment%}<pre>
+PushingParent |
+    depth: {{parent_depth}}
+    url: {{parent_url}}
+    children: {{parent_children | size}}
+                </pre>{%endcomment%}
                 {%- assign new_stack = ""|split:"" -%}
                 {%- assign new_stack = new_stack|push:parent_node -%}
                 {%- assign node_stack_size = node_stack | size -%}
@@ -533,12 +553,13 @@ At the end, close off any open nodes (by walking the rest of the stack) and our 
 
             {%- endif -%}
 
-            {%-comment-%}<pre> EndLoop |
-                    stack_size: {{node_stack[1]}}
-                    {{url}}
-                    {{prev_url}}
-                    {{parent_url}}
-            </pre>{%-endcomment-%}
+            {%comment%}<pre>
+EndLoop |
+    stack_size: {{node_stack[1]}}
+    {{url}}
+    {{prev_url}}
+    {{parent_url}}
+            </pre>{%endcomment%}
 
         {%- endunless -%}
 
@@ -562,12 +583,13 @@ At the end, close off any open nodes (by walking the rest of the stack) and our 
     What this will look like, in general, is taking the current data (prev)
 {%- endcomment -%}
 
-{%-comment-%}<pre> Close Nodes |
-        stack_size: {{node_stack[1]}}
-        {{url}}
-        {{prev_url}}
-        {{parent_url}}
-</pre>{%-endcomment-%}
+{%comment%}<pre>
+Close Nodes |
+    stack_size: {{node_stack[1]}}
+    {{url}}
+    {{prev_url}}
+    {{parent_url}}
+</pre>{%endcomment%}
 
 {%- if node_stack | size > 0 -%}
     {%- assign remaining_nodes = node_stack[1] -%}
@@ -593,10 +615,13 @@ At the end, close off any open nodes (by walking the rest of the stack) and our 
                 {%- assign node = node|push:prev_url -%}
                 {%- assign node = node|push:prev_children -%}
                 {%- assign parent_children = parent_children|push:node -%}
-                {%-comment-%}<pre> PushedChild | parent: {{parent_url}} children: {{parent_children | size }}
-                        depth: {{prev_depth}}
-                        url: {{prev_url}}
-                </pre>{%-endcomment-%}
+                {%comment%}<pre>
+PushedChild |
+    parent: {{parent_url}}
+    children: {{parent_children | size }}
+    depth: {{prev_depth}}
+    url: {{prev_url}}
+                </pre>{%endcomment%}
             {%- endif -%}
         {%- endif -%}
 
@@ -607,23 +632,28 @@ At the end, close off any open nodes (by walking the rest of the stack) and our 
         {%- assign prev_url = parent_url -%}
         {%- assign prev_children = parent_children -%}
 
-        {%- assign node = node_stack[0] -%}
-        {%- assign node_stack = node_stack[2] -%}
-        {%- assign parent_depth = node[0] -%}
-        {%- assign parent_page = node[1] -%}
-        {%- assign parent_name = node[2] -%}
-        {%- assign parent_directory = node[3] -%}
-        {%- assign parent_url = node[4] -%}
-        {%- assign parent_children = node[5] -%}
+        {%- if node_stack[1] > 0 -%}
+            {%- assign node = node_stack[0] -%}
+            {%- assign node_stack_size = node_stack[1] -%}
+            {%comment%}<pre> NodeStack Size | {{node_stack_size}} </pre>{%endcomment%}
+            {%- assign node_stack = node_stack[2] -%}
+            {%- assign parent_depth = node[0] -%}
+            {%- assign parent_page = node[1] -%}
+            {%- assign parent_name = node[2] -%}
+            {%- assign parent_directory = node[3] -%}
+            {%- assign parent_url = node[4] -%}
+            {%- assign parent_children = node[5] -%}
+        {%- endif -%}
 
     {%- endfor -%}
 
-    {%-comment-%}<pre> PostPop |
-            stack_size: {{node_stack[1]}}
-            {{url}}
-            {{prev_url}}
-            {{parent_url}}
-    </pre>{%-endcomment-%}
+    {%comment%}<pre>
+PostPop |
+    stack_size: {{node_stack[1]}}
+    {{url}}
+    {{prev_url}}
+    {{parent_url}}
+    </pre>{%endcomment%}
 
 {%- endif -%}
 
@@ -642,12 +672,23 @@ At the end, close off any open nodes (by walking the rest of the stack) and our 
         {%- assign node = node|push:prev_url -%}
         {%- assign node = node|push:prev_children -%}
         {%- assign parent_children = parent_children|push:node -%}
-        {%-comment-%}<pre> PushedChild | parent: {{parent_url}} children: {{parent_children | size }}
-                depth: {{prev_depth}}
-                url: {{prev_url}}
-        </pre>{%-endcomment-%}
+        {%comment%}<pre>
+PushedChild |
+    parent: {{parent_url}}
+    children: {{parent_children | size }}
+    depth: {{prev_depth}}
+    url: {{prev_url}}
+        </pre>{%endcomment%}
     {%- endif -%}
 {%- endif -%}
+
+{%comment%}<pre>
+RootNode |
+    name: {{parent_name}}
+    depth: {{parent_depth}}
+    url: {{parent_url}}
+    children: {{parent_children|size}}
+</pre>{%endcomment%}
 
 {%- assign _main_node = ""|split:"" -%}
 {%- assign _main_node = _main_node|push:parent_depth -%}
