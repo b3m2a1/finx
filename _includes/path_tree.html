@@ -28,15 +28,18 @@
     {%- comment -%} setup: page_set {%- endcomment -%}
     {%- if parent == nil -%}
         {%- assign parent = include.parent -%}
+        {%- if parent == nil -%}
+            {%- assign parent = "" -%}
+        {%- endif -%}
     {%- endif -%}
 
     {%- if parent_pages == nil -%}
         {%- assign parent_pages = site.html_pages -%}
     {%- endif -%}
-    {%- if parent == nil -%}
-        {%- assign parent = "/" -%}
-        {%- assign current_depth = 0 -%}
+
+    {%- if parent == "" -%}
         {%- assign page_set = parent_pages -%}
+        {%- assign parent_dir = parent -%}
     {%- else -%}
         {%- assign page_set = ""|split:"" -%}
         {%- assign parent_dir = parent|split:"."|first -%}
@@ -46,16 +49,21 @@
                {%- assign page_set = page_set|push:p -%}
             {%- endif -%}
         {%- endfor -%}
-        {%- assign current_depth = parent|split:"/"|size -%}
     {%- endif -%}
+    {%- assign current_depth = parent|split:"/"|size -%}
 
     {%- comment -%}
         This sets up a "site_path_tree" variable that we can walk down
         We need to null-out some variables used at load-time, but beyond that everything is good and clean and normal
     {%- endcomment -%}
 
+    {%- assign og_parent = parent -%}
     {%- assign prev_directory = nil -%}
     {%- include populate_path_tree.html -%}
+    {%- if og_parent == "" -%}
+        {% assign node = site_path_tree[0] %}
+        {% assign site_path_tree = node[5] %}
+    {%- endif -%}
     {%- assign _stack = "" | split:"" -%}
 
 {%- endif -%}
@@ -68,7 +76,6 @@
         {%- assign page_urls = page_urls | push:test_url -%}
     {%- endfor -%}
 {%- endif -%}
-
 
 {%- comment -%} ##### Construct sitemap at this level ####### {%- endcomment -%}
 {%- assign num_nodes = site_path_tree|size -%}
@@ -94,9 +101,9 @@
                                {%- endif %}
                             {%- endunless -%}
                             {%- unless valid %}
-                               {%- if page_urls contains test_url|append:"/" %}
+                               {%- if page_urls contains test_url|append:"/" -%}
                                  {%- assign valid = true -%}
-                               {%- endif %}
+                               {%- endif -%}
                             {%- endunless -%}
                             {%- if valid -%}
                                 <a href='{{site.url}}{{ test_url }}'>{{name}}</a>
