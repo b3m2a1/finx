@@ -23,6 +23,9 @@ a.docs-object-method {
     margin-top: -15px;
     font-size: 13px;
 }
+.docs-source-link p {
+    margin-bottom: 0px;
+}
 
 a:hover {
     color: rebeccapurple;
