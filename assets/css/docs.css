@@ -4,3 +4,6 @@
 .docs-description {
     color: slategray;
 }
+.docs-source-link {
+    margin-top: -5px;
+}
