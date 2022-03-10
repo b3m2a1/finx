@@ -26,6 +26,10 @@ a.docs-object-method {
 .docs-source-link p {
     margin-bottom: 0px;
 }
+a.collapse-link, .collapsible-section-header a:active {
+    color: inherit;
+    text-decoration: none;
+}
 
 a:hover {
     color: rebeccapurple;
