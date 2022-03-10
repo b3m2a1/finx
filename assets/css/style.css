@@ -19,6 +19,10 @@ a {
 a.docs-object-method {
     display: none;
 }
+.docs-source-link {
+    margin-top: -15px;
+    font-size: 13px;
+}
 
 a:hover {
     color: rebeccapurple;
