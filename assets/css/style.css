@@ -41,6 +41,17 @@ a {
 a.docs-object-method {
     display: none;
 }
+.docs-source-link {
+    margin-top: -15px;
+    font-size: 13px;
+}
+.docs-source-link p {
+    margin-bottom: 0px;
+}
+a.collapse-link, .collapsible-section-header a:active {
+    color: inherit;
+    text-decoration: none;
+}
 
 a:hover {
     color: var(--finx-color-secondary);
