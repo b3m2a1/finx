@@ -8,7 +8,8 @@ var tipuesearch = { pages: [
     "title": "{{ page.title | replace: '&amp;', '&' }}",
     "text": "{{ page.content | markdownify | replace: '</h', ' . </h' | replace: '<hr', ' . <hr' | replace: '</p', ' . </p' | replace: '</ul', ' . </ul' | replace: '</tr', ' . </tr' | replace: '</li', ' | </li' | replace: '</td', ' | </td' | strip_html | escape_once | remove: 'Table of contents' | remove: '```'  | remove: '---' | replace: '\', ' ' | replace: ' .  .  . ', ' . ' | replace: ' .  . ', ' . ' | normalize_whitespace }}",
     "url": "{{ page.url | absolute_url }}"
-  }{% endif %}{% endfor %}
+  }{% assign comma = true %}
+  {% endif %}{% endfor %}
   {% for page in site.posts %}{% if page.search_exclude != true %}{% if comma == true%},{% endif %} {
     "title": "{{ page.title | replace: '&amp;', '&' }}",
     "text": "{{ page.content | markdownify | replace: '</h', ' . </h' | replace: '<hr', ' . <hr' | replace: '</p', ' . </p' | replace: '</ul', ' . </ul' | replace: '</tr', ' . </tr' | replace: '</li', ' | </li' | replace: '</td', ' | </td' | strip_html | escape_once | remove: 'Table of contents' | remove: '```'  | remove: '---' | replace: '\', ' ' | replace: ' .  .  . ', ' . ' | replace: ' .  . ', ' . ' | normalize_whitespace }}",
